@@ -20,6 +20,7 @@ app.secret_key = os.environ.get("SESSION_SECRET") or secrets.token_hex(32)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 is_vercel = os.environ.get("VERCEL") == "1"
+is_render = os.environ.get("RENDER") == "true" or bool(os.environ.get("RENDER_EXTERNAL_URL"))
 
 database_url = (
     os.environ.get("DATABASE_URL")
@@ -34,6 +35,9 @@ if not database_url:
     if is_vercel:
         database_url = "sqlite:////tmp/nurseai.db"
         logging.warning("DATABASE_URL not set; using SQLite database at /tmp/nurseai.db (Vercel)")
+    elif is_render:
+        database_url = "sqlite:////tmp/nurseai.db"
+        logging.warning("DATABASE_URL not set; using SQLite database at /tmp/nurseai.db (Render)")
     else:
         database_url = "sqlite:///nurseai.db"
         logging.warning("DATABASE_URL not set; using SQLite database at nurseai.db")
@@ -46,7 +50,7 @@ if not database_url.startswith("sqlite"):
         "pool_recycle": 300,
     }
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
-app.config['UPLOAD_FOLDER'] = '/tmp/uploads' if is_vercel else 'uploads'
+app.config['UPLOAD_FOLDER'] = '/tmp/uploads' if (is_vercel or is_render) else 'uploads'
 
 db = SQLAlchemy(app, model_class=Base)
 

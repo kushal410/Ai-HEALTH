@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: ai-health
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: SESSION_SECRET
+        generateValue: true
+      # Optional (recommended): attach a Render Postgres database so data persists.
+      # Render will then inject DATABASE_URL automatically.
+
