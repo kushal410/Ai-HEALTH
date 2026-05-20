@@ -1,0 +1,305 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-screen p-4">
+    <div class="max-w-7xl mx-auto">
+        {% include 'nav.html' %}
+        
+        <div class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2">
+                <div class="bg-white/80 backdrop-blur rounded-2xl p-6 shadow-lg h-[600px] flex flex-col">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold flex items-center gap-2">
+                            <span class="material-symbols-outlined text-red-600">medical_services</span>
+                            First-Aid Co-Assist
+                        </h2>
+                        <button onclick="toggleEmergency()" id="emergencyBtn" class="px-4 py-2 bg-red-100 text-red-700 rounded-lg font-bold hover:bg-red-200 transition-all flex items-center gap-2">
+                            <span class="material-symbols-outlined">emergency</span>
+                            Emergency Mode
+                        </button>
+                    </div>
+                    
+                    <div id="chatMessages" class="flex-1 overflow-y-auto mb-4 space-y-3">
+                        {% for msg in messages %}
+                        <div class="{% if msg.role == 'user' %}text-right{% else %}text-left{% endif %} mb-3">
+                            <div class="inline-block px-4 py-3 rounded-lg {% if msg.role == 'user' %}bg-purple-100{% else %}bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200 nurse-response{% endif %} max-w-2xl text-left">
+                                {% if msg.role == 'user' %}
+                                    {{ msg.content }}
+                                {% else %}
+                                    <div class="nurse-response-content">{{ msg.content|safe }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="flex gap-2">
+                        <input type="text" id="chatInput" placeholder="Describe your symptoms or concern..." 
+                               class="flex-1 px-4 py-3 border-2 rounded-lg focus:outline-none focus:border-purple-500"
+                               onkeypress="if(event.key === 'Enter') sendMessage()">
+                        <button onclick="sendMessage()" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-lg font-bold hover:shadow-xl transition-all">
+                            Send
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="bg-white/80 backdrop-blur rounded-2xl p-6 shadow-lg">
+                    <div class="text-center mb-4">
+                        <div class="mb-2 heartbeat-{{ nurse.heartbeat_speed }}" id="nurseAvatar">
+                            {% if nurse.nurse_avatar %}
+                            <img src="{{ url_for('static', filename='assets/nurse/avatars/' + nurse.nurse_avatar) }}" 
+                                 alt="{{ nurse.nurse_name }}" 
+                                 class="w-20 h-20 mx-auto rounded-full object-cover shadow-lg">
+                            {% else %}
+                            <span class="material-symbols-outlined text-purple-600" style="font-size: 64px;">favorite</span>
+                            {% endif %}
+                        </div>
+                        <p class="font-bold">{{ nurse.nurse_name }}</p>
+                        <p class="text-sm text-gray-600">I'm here to help you</p>
+                    </div>
+                </div>
+                
+                <div class="bg-white/80 backdrop-blur rounded-2xl p-4 shadow-lg">
+                    <h3 class="font-bold mb-3 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-purple-600">tips_and_updates</span>
+                        Quick Health Tips
+                    </h3>
+                    <div class="space-y-2 text-xs">
+                        <!-- Fever Card -->
+                        <div class="bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-lg p-3 cursor-pointer hover:shadow-md transition-all" onclick="quickTipClick('fever')">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="material-symbols-outlined text-red-600" style="font-size: 18px;">device_thermostat</span>
+                                <span class="font-bold text-red-700">Fever</span>
+                            </div>
+                            <p class="text-gray-700">Rest, stay hydrated, and monitor temperature</p>
+                        </div>
+                        
+                        <!-- Headache Card -->
+                        <div class="bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200 rounded-lg p-3 cursor-pointer hover:shadow-md transition-all" onclick="quickTipClick('headache')">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="material-symbols-outlined text-blue-600" style="font-size: 18px;">psychology</span>
+                                <span class="font-bold text-blue-700">Headache</span>
+                            </div>
+                            <p class="text-gray-700">Rest in dark room, drink water, apply cold compress</p>
+                        </div>
+                        
+                        <!-- Cold/Cough Card -->
+                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-3 cursor-pointer hover:shadow-md transition-all" onclick="quickTipClick('cold')">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="material-symbols-outlined text-green-600" style="font-size: 18px;">coronavirus</span>
+                                <span class="font-bold text-green-700">Cold/Cough</span>
+                            </div>
+                            <p class="text-gray-700">Warm fluids, rest, humidifier, vitamin C</p>
+                        </div>
+                        
+                        <!-- Cuts/Wounds Card -->
+                        <div class="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-3 cursor-pointer hover:shadow-md transition-all" onclick="quickTipClick('cuts')">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="material-symbols-outlined text-purple-600" style="font-size: 18px;">healing</span>
+                                <span class="font-bold text-purple-700">Cuts/Wounds</span>
+                            </div>
+                            <p class="text-gray-700">Clean with water, apply antiseptic, bandage</p>
+                        </div>
+                        
+                        <!-- Stress/Anxiety Card -->
+                        <div class="bg-gradient-to-r from-yellow-50 to-amber-50 border border-yellow-200 rounded-lg p-3 cursor-pointer hover:shadow-md transition-all" onclick="quickTipClick('stress')">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="material-symbols-outlined text-yellow-600" style="font-size: 18px;">self_improvement</span>
+                                <span class="font-bold text-yellow-700">Stress/Anxiety</span>
+                            </div>
+                            <p class="text-gray-700">Deep breathing, meditation, walk outdoors</p>
+                        </div>
+                        
+                        <!-- Stomach Ache Card -->
+                        <div class="bg-gradient-to-r from-indigo-50 to-violet-50 border border-indigo-200 rounded-lg p-3 cursor-pointer hover:shadow-md transition-all" onclick="quickTipClick('stomach')">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="material-symbols-outlined text-indigo-600" style="font-size: 18px;">restaurant</span>
+                                <span class="font-bold text-indigo-700">Stomach Ache</span>
+                            </div>
+                            <p class="text-gray-700">Light food, ginger tea, rest, avoid spicy foods</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-3 pt-3 border-t text-xs text-gray-500">
+                        <p class="flex items-center gap-1">
+                            <span class="material-symbols-outlined" style="font-size: 14px;">info</span>
+                            Click any card to ask about symptoms
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+
+<style>
+.nurse-response {
+    line-height: 1.6;
+}
+.nurse-response h1, .nurse-response h2, .nurse-response h3, .nurse-response h4 {
+    font-weight: bold;
+    margin-top: 1em;
+    margin-bottom: 0.5em;
+    color: #7c3aed;
+}
+.nurse-response strong {
+    color: #7c3aed;
+    font-weight: 700;
+}
+.nurse-response ul, .nurse-response ol {
+    margin-left: 1.5em;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+.nurse-response li {
+    margin-bottom: 0.3em;
+}
+.nurse-response p {
+    margin-bottom: 0.75em;
+}
+.nurse-response code {
+    background: #f3f4f6;
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+    font-size: 0.9em;
+}
+</style>
+
+<script>
+let isEmergency = false;
+
+// Configure marked options for better formatting
+marked.setOptions({
+    breaks: true,
+    gfm: true
+});
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function formatMarkdown(text) {
+    // Parse markdown to HTML
+    const rawHtml = marked.parse(text);
+    // Sanitize HTML to prevent XSS attacks
+    const cleanHtml = DOMPurify.sanitize(rawHtml);
+    return cleanHtml;
+}
+
+// Render markdown for all existing messages on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const nurseResponses = document.querySelectorAll('.nurse-response-content');
+    nurseResponses.forEach(function(element) {
+        const markdownText = element.textContent;
+        element.innerHTML = formatMarkdown(markdownText);
+    });
+});
+
+function toggleEmergency() {
+    isEmergency = !isEmergency;
+    const btn = document.getElementById('emergencyBtn');
+    if (isEmergency) {
+        btn.classList.remove('bg-red-100', 'text-red-700');
+        btn.classList.add('bg-red-600', 'text-white');
+        btn.innerHTML = '<span class="material-symbols-outlined">emergency</span> Emergency Active';
+    } else {
+        btn.classList.add('bg-red-100', 'text-red-700');
+        btn.classList.remove('bg-red-600', 'text-white');
+        btn.innerHTML = '<span class="material-symbols-outlined">emergency</span> Emergency Mode';
+    }
+}
+
+function quickTipClick(symptom) {
+    const messages = {
+        'fever': 'I have a fever. What should I do?',
+        'headache': 'I have a headache. Can you help me with remedies?',
+        'cold': 'I have a cold and cough. What are the best treatments?',
+        'cuts': 'I have a cut/wound. How should I treat it?',
+        'stress': 'I\'m feeling stressed and anxious. What can help?',
+        'stomach': 'I have a stomach ache. What should I do?'
+    };
+    
+    const input = document.getElementById('chatInput');
+    input.value = messages[symptom] || 'Tell me about ' + symptom;
+    input.focus();
+}
+
+async function sendMessage() {
+    const input = document.getElementById('chatInput');
+    const message = input.value.trim();
+    
+    if (!message) return;
+    
+    const messagesDiv = document.getElementById('chatMessages');
+    
+    // Display user message (escaped for security)
+    messagesDiv.innerHTML += `
+        <div class="text-right mb-3">
+            <div class="inline-block px-4 py-2 rounded-lg bg-purple-100 max-w-2xl text-left">
+                ${escapeHtml(message)}
+            </div>
+        </div>
+    `;
+    
+    input.value = '';
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    
+    // Show loading indicator
+    const loadingId = 'loading-' + Date.now();
+    messagesDiv.innerHTML += `
+        <div class="text-left mb-3" id="${loadingId}">
+            <div class="inline-block px-4 py-2 rounded-lg bg-gray-100 max-w-2xl">
+                <span class="animate-pulse">Thinking...</span>
+            </div>
+        </div>
+    `;
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    
+    try {
+        const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                message: message,
+                emergency: isEmergency
+            })
+        });
+        
+        const data = await response.json();
+        
+        // Remove loading indicator
+        document.getElementById(loadingId).remove();
+        
+        // Display nurse response with markdown formatting
+        const formattedResponse = formatMarkdown(data.response);
+        messagesDiv.innerHTML += `
+            <div class="text-left mb-3">
+                <div class="inline-block px-4 py-3 rounded-lg bg-gradient-to-br from-purple-50 to-pink-50 max-w-2xl text-left nurse-response border border-purple-200">
+                    ${formattedResponse}
+                </div>
+            </div>
+        `;
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    } catch (error) {
+        // Remove loading indicator
+        document.getElementById(loadingId).remove();
+        
+        messagesDiv.innerHTML += `
+            <div class="text-left mb-3">
+                <div class="inline-block px-4 py-2 rounded-lg bg-red-100 max-w-2xl text-red-700">
+                    Sorry, I'm having trouble connecting. Please try again.
+                </div>
+            </div>
+        `;
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+}
+</script>
+{% endblock %}

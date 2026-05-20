@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center p-4">
+    <div class="text-center">
+        <div class="text-8xl mb-4">😢</div>
+        <h1 class="text-4xl font-bold mb-4">Oops! Something went wrong</h1>
+        <p class="text-gray-600 mb-8">We encountered an error during authentication.</p>
+        <a href="{{ url_for('index') }}" class="inline-block px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-bold hover:shadow-xl transition-all">
+            Go Home
+        </a>
+    </div>
+</div>
+{% endblock %}

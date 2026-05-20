@@ -1,0 +1,554 @@
+<nav class="bg-white/90 backdrop-blur-md border-b border-gray-200 shadow-sm p-3 z-navbar fixed top-0 left-0 right-0">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+            {% if nurse and nurse.nurse_avatar %}
+            <div class="flex items-center gap-2">
+                <div class="nurse-avatar-heartbeat">
+                    <img src="{{ url_for('static', filename='assets/nurse/avatars/' + nurse.nurse_avatar) }}" 
+                         alt="{{ nurse.nurse_name }}" 
+                         class="w-10 h-10 rounded-full object-cover">
+                </div>
+                <img src="{{ url_for('static', filename='assets/nurse/animations/heart-beat.gif') }}" 
+                     alt="Heartbeat" 
+                     class="w-10 h-10"
+                     title="{{ nurse.heartbeat_speed|capitalize }} Heartbeat">
+            </div>
+            {% else %}
+            <span class="material-symbols-outlined text-3xl text-purple-600">favorite</span>
+            {% endif %}
+            <div class="flex flex-col">
+                <span class="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 text-transparent bg-clip-text">
+                    {{ nurse.nurse_name if nurse else 'NurseAI' }}
+                </span>
+                <span id="navDateTime" class="text-xs text-gray-500 font-medium"></span>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-3">
+            <a href="{{ url_for('dashboard') }}" class="nav-link">
+                <span class="material-symbols-outlined nav-icon">dashboard</span>
+                <span class="nav-text">Dashboard</span>
+            </a>
+            <a href="{{ url_for('planner') }}" class="nav-link">
+                <span class="material-symbols-outlined nav-icon">event_note</span>
+                <span class="nav-text">Planner</span>
+            </a>
+            <a href="{{ url_for('first_aid') }}" class="nav-link">
+                <span class="material-symbols-outlined nav-icon">medical_services</span>
+                <span class="nav-text">First-Aid</span>
+            </a>
+            <a href="{{ url_for('medical_history') }}" class="nav-link">
+                <span class="material-symbols-outlined nav-icon">folder_open</span>
+                <span class="nav-text">Medical History</span>
+            </a>
+            
+            <div class="nav-divider"></div>
+            
+            <div class="nav-theme-toggle">
+                <button class="nav-theme-btn" data-theme-option="light" onclick="setTheme('light')" title="Light Mode">
+                    <span class="material-symbols-outlined">light_mode</span>
+                </button>
+                <button class="nav-theme-btn" data-theme-option="dark" onclick="setTheme('dark')" title="Dark Mode">
+                    <span class="material-symbols-outlined">dark_mode</span>
+                </button>
+                <button class="nav-theme-btn" data-theme-option="auto" onclick="setTheme('auto')" title="Auto Mode">
+                    <span class="material-symbols-outlined">brightness_auto</span>
+                </button>
+            </div>
+            
+            <button class="nav-help-btn" onclick="openHelp()" title="Help Center">
+                <span class="material-symbols-outlined">help</span>
+            </button>
+            
+            <div class="nav-reminder-bell" title="Upcoming Reminders">
+                <button class="nav-bell-btn" onclick="window.location.href='{{ url_for('planner') }}'">
+                    <span class="material-symbols-outlined">notifications</span>
+                    <span id="reminderBadge" class="reminder-badge hidden">0</span>
+                </button>
+            </div>
+            
+            <div class="nav-profile-container">
+                <button class="nav-profile-btn" onclick="toggleProfileMenu(event)" title="Profile Menu">
+                    <span class="profile-avatar">{{ (user.name[0]|upper) if (user and user.name) else '👤' }}</span>
+                </button>
+                
+                <div id="profileDropdown" class="profile-dropdown hidden">
+                    <div class="profile-dropdown-header">
+                        <div class="profile-avatar-large">{{ (user.name[0]|upper) if (user and user.name) else '👤' }}</div>
+                        <div class="profile-info">
+                            <div class="profile-name">{{ user.name if (user and user.name) else 'User' }}</div>
+                            <div class="profile-email">{{ user.email if (user and user.email) else '' }}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-dropdown-divider"></div>
+                    
+                    <a href="{{ url_for('settings') }}" class="profile-dropdown-item">
+                        <span class="material-symbols-outlined">settings</span>
+                        <span>Settings</span>
+                    </a>
+                    
+                    <a href="{{ url_for('reflection') }}" class="profile-dropdown-item">
+                        <span class="material-symbols-outlined">auto_stories</span>
+                        <span>Reflections</span>
+                    </a>
+                    
+                    <div class="profile-dropdown-divider"></div>
+                    
+                    <div class="profile-dropdown-item profile-language-selector">
+                        <span class="material-symbols-outlined">language</span>
+                        <select id="profile-language" class="language-dropdown" onchange="updateLanguage(this.value)">
+                            <option value="en" {% if not user or user.language == 'en' %}selected{% endif %}>English</option>
+                            <option value="hi" {% if user and user.language == 'hi' %}selected{% endif %}>हिन्दी</option>
+                        </select>
+                    </div>
+                    
+                    <div class="profile-dropdown-divider"></div>
+                    
+                    <a href="{{ url_for('replit_auth.logout') }}" class="profile-dropdown-item profile-logout">
+                        <span class="material-symbols-outlined">logout</span>
+                        <span>Logout</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<style>
+/* Nurse Avatar Heartbeat Animation */
+.nurse-avatar-heartbeat {
+    animation: heartbeat 1.5s ease-in-out infinite;
+    display: inline-block;
+}
+
+@keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    10%, 30% { transform: scale(1.05); }
+    20% { transform: scale(1); }
+}
+
+/* Navigation Styles */
+.nav-profile-container {
+    position: relative;
+    z-index: var(--z-navbar-dropdown) !important;
+}
+
+.nav-link {
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    transition: all 0.3s;
+    font-weight: 600;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.nav-link:hover {
+    background: linear-gradient(to right, #9333ea, #ec4899);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.nav-icon {
+    font-size: 20px;
+    display: inline-block;
+}
+
+.nav-text {
+    display: inline-block;
+}
+
+.nav-divider {
+    width: 1px;
+    height: 24px;
+    background: linear-gradient(to bottom, transparent, var(--border-color), transparent);
+    margin: 0 4px;
+}
+
+.nav-theme-toggle {
+    display: flex;
+    gap: 4px;
+    background: rgba(147, 51, 234, 0.1);
+    padding: 4px;
+    border-radius: 0.5rem;
+}
+
+.nav-theme-btn {
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-theme-btn .material-symbols-outlined {
+    font-size: 20px;
+}
+
+.nav-theme-btn:hover {
+    background: rgba(147, 51, 234, 0.2);
+    transform: scale(1.1);
+}
+
+.nav-theme-btn.active {
+    background: linear-gradient(135deg, #9333ea, #ec4899);
+}
+
+.nav-help-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid #9333ea;
+    background: var(--card-bg);
+    color: #9333ea;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-help-btn:hover {
+    background: linear-gradient(135deg, #9333ea, #ec4899);
+    color: white;
+    transform: scale(1.1);
+}
+
+.nav-reminder-bell {
+    position: relative;
+}
+
+.nav-bell-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid #9333ea;
+    background: var(--card-bg);
+    color: #9333ea;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.nav-bell-btn:hover {
+    background: linear-gradient(135deg, #9333ea, #ec4899);
+    color: white;
+    transform: scale(1.1);
+}
+
+.nav-bell-btn .material-symbols-outlined {
+    font-size: 20px;
+}
+
+.reminder-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 5px;
+    border-radius: 10px;
+    min-width: 18px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.5);
+    animation: pulse-badge 2s ease-in-out infinite;
+}
+
+.reminder-badge.hidden {
+    display: none;
+}
+
+@keyframes pulse-badge {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 2px 8px rgba(239, 68, 68, 0.5);
+    }
+    50% {
+        transform: scale(1.1);
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.8);
+    }
+}
+
+.nav-profile-container {
+    position: relative;
+    z-index: var(--z-navbar-dropdown) !important;
+}
+
+.nav-profile-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #9333ea, #ec4899);
+    border: 2px solid white;
+    color: white;
+    font-weight: bold;
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-profile-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(147, 51, 234, 0.4);
+}
+
+.profile-avatar {
+    text-transform: uppercase;
+}
+
+.profile-dropdown {
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    width: 280px;
+    background-color: #ffffff !important;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-color);
+    z-index: var(--z-navbar-dropdown) !important;
+    animation: dropdownSlide 0.2s ease;
+}
+
+[data-theme="dark"] .profile-dropdown {
+   background-color: #1e1e1e !important;
+   color: #ffffff !important;
+   border-color: rgba(255, 255, 255, 0.1);
+   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+@keyframes dropdownSlide {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.profile-dropdown.hidden {
+    display: none;
+}
+
+.profile-dropdown-header {
+    padding: 16px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.profile-avatar-large {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #9333ea, #ec4899);
+    color: white;
+    font-weight: bold;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-transform: uppercase;
+}
+
+.profile-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.profile-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.profile-email {
+    font-size: 12px;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.profile-dropdown-divider {
+    height: 1px;
+    background: var(--border-color);
+    margin: 4px 0;
+}
+
+.profile-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    color: var(--text-primary);
+    transition: all 0.2s;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.profile-dropdown-item:hover {
+    background: rgba(147, 51, 234, 0.1);
+}
+
+.profile-dropdown-item span:first-child {
+    font-size: 18px;
+    width: 20px;
+}
+
+.profile-language-selector {
+    cursor: default;
+}
+
+.language-dropdown {
+    flex: 1;
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.profile-logout {
+    color: #dc2626 !important;
+}
+
+.profile-logout:hover {
+    background: rgba(220, 38, 38, 0.1) !important;
+}
+
+@media (max-width: 1024px) {
+    .nav-text {
+        display: none;
+    }
+    
+    .nav-link {
+        padding: 0.5rem;
+        justify-content: center;
+        min-width: 40px;
+    }
+    
+    .nav-icon {
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .nav-text {
+        display: none;
+    }
+    
+    .nav-link {
+        padding: 0.4rem;
+        justify-content: center;
+        min-width: 36px;
+    }
+    
+    .nav-icon {
+        font-size: 18px;
+    }
+    
+    .nav-theme-btn {
+        padding: 0.35rem;
+        font-size: 14px;
+    }
+    
+    .nav-help-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 14px;
+    }
+    
+    .nav-profile-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 16px;
+    }
+    
+    .profile-dropdown {
+        width: 260px;
+    }
+}
+</style>
+
+<script>
+    function toggleProfileMenu(event) {
+        // Stop this click from reaching the document click handler
+        event.stopPropagation();
+
+        const dropdown = document.getElementById('profileDropdown');
+        dropdown.classList.toggle('hidden');
+    }
+
+    // Close dropdown only when clicking outside of profile area
+    document.addEventListener('click', function(event) {
+        const dropdown = document.getElementById('profileDropdown');
+        const button = document.querySelector('.nav-profile-btn');
+
+        // Close only if click is outside both button and dropdown
+        if (!button.contains(event.target) && !dropdown.contains(event.target)) {
+            dropdown.classList.add('hidden');
+        }
+    });
+
+function updateLanguage(lang) {
+    fetch('/api/update-profile', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({language: lang})
+    }).then(() => {
+        location.reload();
+    });
+}
+
+// Update date and time in navbar in real-time (24-hour format)
+function updateDateTime() {
+    const now = new Date();
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    
+    const day = days[now.getDay()];
+    const month = months[now.getMonth()];
+    const date = now.getDate();
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    const seconds = now.getSeconds().toString().padStart(2, '0');
+    
+    const dateTimeStr = `${day}, ${month} ${date}, ${hours}:${minutes}:${seconds}`;
+    
+    const navDateTime = document.getElementById('navDateTime');
+    if (navDateTime) {
+        navDateTime.textContent = dateTimeStr;
+    }
+}
+
+// Wait for DOM to be ready, then update immediately and every second
+document.addEventListener('DOMContentLoaded', function() {
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
+});
+</script>

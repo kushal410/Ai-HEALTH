@@ -1,0 +1,51 @@
+DEBUG:flask_dance.consumer.oauth2:redirect URL = https://replit.com/oidc/auth?response_type=code&client_id=e8b25c7b-ffd8-465e-8466-43c22d5d3673&redirect_uri=https%3A%2F%2Fe8b25c7b-ffd8-465e-8466-43c22d5d3673-00-2ib1rs26tj62.spock.replit.dev%2Fauth%2Freplit_auth%2Fauthorized&scope=openid+profile+email+offline_access&state=V80VdXyTcL0ftkiQLDkuEz8ljhn6JX&code_challenge=yFy3dLg0kfi_gcZ2V-lJwmAXdzL8wGdOYBiJOPBDtw8&code_challenge_method=S256&prompt=login+consent
+INFO:werkzeug:10.82.6.70 - - [08/Nov/2025 11:53:01] "GET /auth/replit_auth HTTP/1.1" 302 -
+DEBUG:flask_dance.consumer.oauth2:next_url = /
+DEBUG:flask_dance.consumer.oauth2:state = V80VdXyTcL0ftkiQLDkuEz8ljhn6JX
+DEBUG:flask_dance.consumer.oauth2:code_verifier = O1XdLndafqGnDNo8Hg5bXwSXLNnMImJDfQNDIEynjszN7Mf4
+DEBUG:flask_dance.consumer.oauth2:client_id = e8b25c7b-ffd8-465e-8466-43c22d5d3673
+DEBUG:flask_dance.consumer.oauth2:client_secret = None
+INFO:werkzeug:10.82.6.70 - - [08/Nov/2025 11:53:04] "GET /auth/replit_auth/authorized?code=9A_VMOgJLQrAl5Nr2qnnvGSFwdVFtLp1_0itxPHMl9w&state=BWqY1y4Ppx3DGUavV6FJB20qMb3Rrc&iss=https://replit.com/oidc HTTP/1.1" 500 -
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flask/app.py", line 1536, in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/werkzeug/middleware/proxy_fix.py", line 183, in __call__
+    return self.app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flask/app.py", line 1514, in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flask_dance/consumer/oauth2.py", line 304, in authorized
+    token = self.session.fetch_token(
+            ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/requests_oauthlib/oauth2_session.py", line 271, in fetch_token
+    self._client.parse_request_uri_response(
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/oauthlib/oauth2/rfc6749/clients/web_application.py", line 220, in parse_request_uri_response
+    response = parse_authorization_code_response(uri, state=state)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/oauthlib/oauth2/rfc6749/parameters.py", line 277, in parse_authorization_code_response
+    raise MismatchingStateError()
+oauthlib.oauth2.rfc6749.errors.MismatchingStateError: (mismatching_state) CSRF Warning! State not equal in request and response.
+INFO:werkzeug:172.31.83.2 - - [08/Nov/2025 11:53:05] "GET /auth/replit_auth/authorized?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1" 304 -
+INFO:werkzeug:172.31.83.2 - - [08/Nov/2025 11:53:05] "GET /auth/replit_auth/authorized?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1" 304 -
+INFO:werkzeug:172.31.83.2 - - [08/Nov/2025 11:53:05] "GET /auth/replit_auth/authorized?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 304 -
+INFO:werkzeug:10.82.7.188 - - [08/Nov/2025 11:53:06] "GET /api/check-reminders HTTP/1.1" 302 -
+DEBUG:flask_dance.consumer.oauth2:client_id = e8b25c7b-ffd8-465e-8466-43c22d5d3673
+DEBUG:flask_dance.consumer.oauth2:code_verifier = V8vyKuKGY3jsDKN8nmM72cSlrv2ogW776uDv8sKWEtUDTIqf
+DEBUG:requests_oauthlib.oauth2_session:Generated new state NrHglX6PxXREsmqvGZKW15ViiCy8Pu.
+DEBUG:flask_dance.consumer.oauth2:state = NrHglX6PxXREsmqvGZKW15ViiCy8Pu
+DEBUG:flask_dance.consumer.oauth2:redirect URL = https://replit.com/oidc/auth?response_type=code&client_id=e8b25c7b-ffd8-465e-8466-43c22d5d3673&redirect_uri=https%3A%2F%2Fe8b25c7b-ffd8-465e-8466-43c22d5d3673-00-2ib1rs26tj62.spock.replit.dev%2Fauth%2Freplit_auth%2Fauthorized&scope=openid+profile+email+offline_access&state=NrHglX6PxXREsmqvGZKW15ViiCy8Pu&code_challenge=qA0Y4jEmI9opN43p-UysPX81veGSfikzxTFuGf21ixk&code_challenge_method=S256&prompt=login+consent
+INFO:werkzeug:10.82.7.188 - - [08/Nov/2025 11:53:06] "GET /auth/replit_auth HTTP/1.1" 302 -

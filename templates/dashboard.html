@@ -1,0 +1,737 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-screen p-4 pb-8">
+    <div class="max-w-7xl mx-auto">
+        {% include 'nav.html' %}
+        
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 mt-4">
+            <!-- Main Content Area -->
+            <div class="lg:col-span-3 flex flex-col gap-4">
+                <!-- Greeting -->
+                <div class="bg-white/80 backdrop-blur rounded-2xl p-4 shadow-lg">
+                    <div class="flex items-center gap-3">
+                        <img src="{{ url_for('static', filename='assets/nurse/animations/waving-hand.gif') }}" 
+                             alt="Hello!" 
+                             class="w-8 h-8">
+                        <h2 class="text-xl font-bold">Hello {{ user.name or user.first_name }}!</h2>
+                    </div>
+                </div>
+                
+                <!-- How Are You Feeling Today? -->
+                <div id="feelingCard" class="bg-gradient-to-br from-purple-50 to-pink-50 backdrop-blur rounded-2xl p-4 sm:p-5 shadow-lg border-2 border-purple-200">
+                    <!-- Collapsed View (shown after selection) -->
+                    <div id="feelingCollapsed" class="hidden">
+                        <div class="flex items-center justify-between gap-3">
+                            <div class="flex items-center gap-3">
+                                <span id="selectedEmotionIcon" class="material-symbols-outlined text-4xl"></span>
+                                <div>
+                                    <div class="text-xs text-purple-600 font-medium">You're feeling</div>
+                                    <div id="selectedEmotionText" class="text-lg font-bold text-purple-700 capitalize"></div>
+                                </div>
+                            </div>
+                            <button onclick="toggleFeelingSelector()" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all text-sm font-medium">
+                                Change
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Expanded View (emotion selector) -->
+                    <div id="feelingExpanded">
+                        <h3 class="text-base sm:text-lg font-bold text-purple-700 mb-3 sm:mb-4 text-center">How are you feeling today?</h3>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3">
+                            <button onclick="selectEmotion('happy')" class="emotion-btn" data-emotion="happy">
+                                <span class="material-symbols-outlined text-yellow-500 text-3xl">sentiment_very_satisfied</span>
+                                <span class="text-xs sm:text-sm font-medium">Happy</span>
+                            </button>
+                            <button onclick="selectEmotion('sad')" class="emotion-btn" data-emotion="sad">
+                                <span class="material-symbols-outlined text-blue-500 text-3xl">sentiment_sad</span>
+                                <span class="text-xs sm:text-sm font-medium">Sad</span>
+                            </button>
+                            <button onclick="selectEmotion('anxious')" class="emotion-btn" data-emotion="anxious">
+                                <span class="material-symbols-outlined text-orange-500 text-3xl">sentiment_stressed</span>
+                                <span class="text-xs sm:text-sm font-medium">Anxious</span>
+                            </button>
+                            <button onclick="selectEmotion('calm')" class="emotion-btn" data-emotion="calm">
+                                <span class="material-symbols-outlined text-green-500 text-3xl">self_improvement</span>
+                                <span class="text-xs sm:text-sm font-medium">Calm</span>
+                            </button>
+                            <button onclick="selectEmotion('energetic')" class="emotion-btn" data-emotion="energetic">
+                                <span class="material-symbols-outlined text-red-500 text-3xl">bolt</span>
+                                <span class="text-xs sm:text-sm font-medium">Energetic</span>
+                            </button>
+                            <button onclick="selectEmotion('tired')" class="emotion-btn" data-emotion="tired">
+                                <span class="material-symbols-outlined text-gray-500 text-3xl">bedtime</span>
+                                <span class="text-xs sm:text-sm font-medium">Tired</span>
+                            </button>
+                            <button onclick="selectEmotion('frustrated')" class="emotion-btn" data-emotion="frustrated">
+                                <span class="material-symbols-outlined text-red-600 text-3xl">sentiment_frustrated</span>
+                                <span class="text-xs sm:text-sm font-medium">Frustrated</span>
+                            </button>
+                            <button onclick="selectEmotion('excited')" class="emotion-btn" data-emotion="excited">
+                                <span class="material-symbols-outlined text-pink-500 text-3xl">celebration</span>
+                                <span class="text-xs sm:text-sm font-medium">Excited</span>
+                            </button>
+                            <button onclick="selectEmotion('worried')" class="emotion-btn" data-emotion="worried">
+                                <span class="material-symbols-outlined text-purple-500 text-3xl">sentiment_worried</span>
+                                <span class="text-xs sm:text-sm font-medium">Worried</span>
+                            </button>
+                            <button onclick="selectEmotion('content')" class="emotion-btn" data-emotion="content">
+                                <span class="material-symbols-outlined text-teal-500 text-3xl">sentiment_calm</span>
+                                <span class="text-xs sm:text-sm font-medium">Content</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3">
+                    <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-3 border-2 border-green-200">
+                        <div class="text-2xl font-bold text-green-600" data-stat="completed">{{ completed_today }}</div>
+                        <div class="text-xs text-gray-600">Completed</div>
+                    </div>
+                    <div class="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-3 border-2 border-blue-200">
+                        <div class="text-2xl font-bold text-blue-600" data-stat="coming">{{ coming_reminders }}</div>
+                        <div class="text-xs text-gray-600">Coming</div>
+                    </div>
+                    <div class="bg-gradient-to-br from-red-50 to-rose-50 rounded-xl p-3 border-2 border-red-200">
+                        <div class="text-2xl font-bold text-red-600" data-stat="missed">{{ missed_reminders_today }}</div>
+                        <div class="text-xs text-gray-600">Missed</div>
+                    </div>
+                    <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-3 border-2 border-purple-200">
+                        <div class="text-2xl font-bold text-purple-600" data-stat="total">{{ total_routines }}</div>
+                        <div class="text-xs text-gray-600">Total</div>
+                    </div>
+                    <div class="bg-gradient-to-br from-orange-50 to-yellow-50 rounded-xl p-3 border-2 border-orange-200">
+                        <div class="text-2xl font-bold text-orange-600" data-stat="streak">{{ streak }}</div>
+                        <div class="text-xs text-gray-600">Streak 🔥</div>
+                    </div>
+                    <div class="bg-gradient-to-br from-indigo-50 to-violet-50 rounded-xl p-3 border-2 border-indigo-200">
+                        <div class="text-2xl font-bold text-indigo-600" data-stat="score">{{ co_care_score }}</div>
+                        <div class="text-xs text-gray-600">Score</div>
+                    </div>
+                </div>
+                
+                <!-- 7-Day Analytics Trends - Modern Chart -->
+                <div class="bg-gradient-to-br from-white to-purple-50/30 backdrop-blur rounded-3xl p-6 shadow-xl border border-purple-100">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold text-xl flex items-center gap-2">
+                            <span class="material-symbols-outlined text-purple-600 text-2xl">insights</span>
+                            7-Day Activity Trends
+                        </h3>
+                        <!-- Animated Legend Pills -->
+                        <div class="flex items-center gap-2 text-xs">
+                            <div class="flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full shadow-sm">
+                                <div class="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                                <span class="font-medium">Completed</span>
+                            </div>
+                            <div class="flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-full shadow-sm">
+                                <div class="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                                <span class="font-medium">Coming</span>
+                            </div>
+                            <div class="flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-red-500 to-rose-500 text-white rounded-full shadow-sm">
+                                <div class="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                                <span class="font-medium">Missed</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Modern Chart Container -->
+                    <div class="relative h-64 mb-2 flex gap-3 bg-gradient-to-br from-gray-50/50 to-white rounded-2xl p-4 border border-gray-100">
+                        <!-- Calculate max value for scaling -->
+                        {% set max_value = [analytics_data|map(attribute='completed')|max, analytics_data|map(attribute='coming')|max, analytics_data|map(attribute='missed')|max]|max %}
+                        {% set max_value = max_value if max_value > 0 else 1 %}
+                        
+                        <!-- Modern Y-axis labels with gradient -->
+                        <div class="flex flex-col justify-between text-xs font-semibold pr-3 py-3">
+                            <span class="text-purple-600">{{ max_value }}</span>
+                            <span class="text-purple-500">{{ (max_value * 0.75)|round|int }}</span>
+                            <span class="text-purple-400">{{ (max_value * 0.5)|round|int }}</span>
+                            <span class="text-purple-300">{{ (max_value * 0.25)|round|int }}</span>
+                            <span class="text-purple-200">0</span>
+                        </div>
+                        
+                        <!-- Chart area with glassmorphic style -->
+                        <div class="flex-1 relative bg-white/60 backdrop-blur-sm rounded-xl border border-gray-100 shadow-inner">
+                            <!-- Animated Grid Lines -->
+                            <div class="absolute inset-0 flex flex-col justify-between p-3">
+                                <div class="border-b border-dashed border-purple-100"></div>
+                                <div class="border-b border-dashed border-purple-100"></div>
+                                <div class="border-b border-dashed border-purple-100"></div>
+                                <div class="border-b border-dashed border-purple-100"></div>
+                                <div class="border-b border-purple-200"></div>
+                            </div>
+                            
+                            <!-- SVG for modern gradient-filled trend areas -->
+                            <svg class="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                                <defs>
+                                    <!-- Gradient definitions for filled areas -->
+                                    <linearGradient id="completedGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                        <stop offset="0%" style="stop-color:rgb(34,197,94);stop-opacity:0.3" />
+                                        <stop offset="100%" style="stop-color:rgb(34,197,94);stop-opacity:0.05" />
+                                    </linearGradient>
+                                    <linearGradient id="comingGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                        <stop offset="0%" style="stop-color:rgb(59,130,246);stop-opacity:0.3" />
+                                        <stop offset="100%" style="stop-color:rgb(59,130,246);stop-opacity:0.05" />
+                                    </linearGradient>
+                                    <linearGradient id="missedGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                        <stop offset="0%" style="stop-color:rgb(239,68,68);stop-opacity:0.3" />
+                                        <stop offset="100%" style="stop-color:rgb(239,68,68);stop-opacity:0.05" />
+                                    </linearGradient>
+                                </defs>
+                                
+                                <!-- Filled Areas with Gradient -->
+                                <path 
+                                    d="M 0,100 {% for i in range(7) %}L {{ (i * 100 / 6)|round(2) }},{{ 5 + ((100 - (analytics_data[i].completed * 100 / max_value)) * 0.9)|round(2) }} {% endfor %}L 100,100 Z"
+                                    fill="url(#completedGradient)"
+                                    class="chart-area-completed"
+                                    style="animation: fadeInUp 0.8s ease-out;"
+                                />
+                                <path 
+                                    d="M 0,100 {% for i in range(7) %}L {{ (i * 100 / 6)|round(2) }},{{ 5 + ((100 - (analytics_data[i].coming * 100 / max_value)) * 0.9)|round(2) }} {% endfor %}L 100,100 Z"
+                                    fill="url(#comingGradient)"
+                                    class="chart-area-coming"
+                                    style="animation: fadeInUp 1s ease-out;"
+                                />
+                                <path 
+                                    d="M 0,100 {% for i in range(7) %}L {{ (i * 100 / 6)|round(2) }},{{ 5 + ((100 - (analytics_data[i].missed * 100 / max_value)) * 0.9)|round(2) }} {% endfor %}L 100,100 Z"
+                                    fill="url(#missedGradient)"
+                                    class="chart-area-missed"
+                                    style="animation: fadeInUp 1.2s ease-out;"
+                                />
+                                
+                                <!-- Smooth stroke lines -->
+                                <polyline 
+                                    points="{% for i in range(7) %}{{ (i * 100 / 6)|round(2) }},{{ 5 + ((100 - (analytics_data[i].completed * 100 / max_value)) * 0.9)|round(2) }}{% if not loop.last %} {% endif %}{% endfor %}"
+                                    fill="none"
+                                    stroke="rgb(34,197,94)"
+                                    stroke-width="3"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    vector-effect="non-scaling-stroke"
+                                    class="drop-shadow-sm"
+                                    style="filter: drop-shadow(0 2px 4px rgba(34,197,94,0.3)); animation: drawLine 1.5s ease-out;"
+                                />
+                                <polyline 
+                                    points="{% for i in range(7) %}{{ (i * 100 / 6)|round(2) }},{{ 5 + ((100 - (analytics_data[i].coming * 100 / max_value)) * 0.9)|round(2) }}{% if not loop.last %} {% endif %}{% endfor %}"
+                                    fill="none"
+                                    stroke="rgb(59,130,246)"
+                                    stroke-width="3"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    vector-effect="non-scaling-stroke"
+                                    style="filter: drop-shadow(0 2px 4px rgba(59,130,246,0.3)); animation: drawLine 1.7s ease-out;"
+                                />
+                                <polyline 
+                                    points="{% for i in range(7) %}{{ (i * 100 / 6)|round(2) }},{{ 5 + ((100 - (analytics_data[i].missed * 100 / max_value)) * 0.9)|round(2) }}{% if not loop.last %} {% endif %}{% endfor %}"
+                                    fill="none"
+                                    stroke="rgb(239,68,68)"
+                                    stroke-width="3"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    vector-effect="non-scaling-stroke"
+                                    style="filter: drop-shadow(0 2px 4px rgba(239,68,68,0.3)); animation: drawLine 1.9s ease-out;"
+                                />
+                                
+                                <!-- Invisible hover areas for each day -->
+                                {% for i in range(7) %}
+                                <rect 
+                                    x="{{ ((i * 100 / 6) - 8)|round(2) }}" 
+                                    y="0" 
+                                    width="16" 
+                                    height="100" 
+                                    fill="transparent" 
+                                    class="cursor-pointer chart-hover-area"
+                                    data-day="{{ analytics_data[i].date }}"
+                                    data-completed="{{ analytics_data[i].completed }}"
+                                    data-coming="{{ analytics_data[i].coming }}"
+                                    data-missed="{{ analytics_data[i].missed }}"
+                                    onmousemove="showChartTooltip(event, this)"
+                                    onmouseleave="hideChartTooltip()"
+                                />
+                                {% endfor %}
+                            </svg>
+                            
+                            <!-- Tooltip -->
+                            <div id="chartTooltip" class="hidden absolute bg-gradient-to-br from-gray-900 to-gray-800 text-white text-xs px-3 py-2 rounded-xl shadow-2xl pointer-events-none z-50 border border-gray-700 backdrop-blur-lg">
+                                <div id="chartTooltipContent"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <style>
+                        @keyframes fadeInUp {
+                            from {
+                                opacity: 0;
+                                transform: translateY(10px);
+                            }
+                            to {
+                                opacity: 1;
+                                transform: translateY(0);
+                            }
+                        }
+                        @keyframes drawLine {
+                            from {
+                                stroke-dasharray: 1000;
+                                stroke-dashoffset: 1000;
+                            }
+                            to {
+                                stroke-dasharray: 1000;
+                                stroke-dashoffset: 0;
+                            }
+                        }
+                    </style>
+                    
+                    <!-- Day labels -->
+                    <div class="flex gap-2">
+                        <div class="text-xs text-transparent pr-2">00</div>
+                        <div class="flex-1 flex items-center justify-between px-1">
+                            {% for day_data in analytics_data %}
+                            <div class="text-xs font-medium {% if day_data.is_today %}text-purple-600{% else %}text-gray-500{% endif %}">
+                                {{ day_data.date }}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Nurse Sidebar -->
+            <div class="space-y-4">
+                <div class="bg-white/80 backdrop-blur rounded-2xl p-4 shadow-lg text-center">
+                    <div class="mb-3">
+                        {% if nurse.nurse_avatar %}
+                        <img src="{{ url_for('static', filename='assets/nurse/avatars/' + nurse.nurse_avatar) }}" 
+                             alt="{{ nurse.nurse_name }}" 
+                             class="w-24 h-24 mx-auto rounded-full object-cover shadow-lg">
+                        {% endif %}
+                    </div>
+                    <h3 class="text-lg font-bold mb-1">{{ nurse.nurse_name }}</h3>
+                    
+                    <!-- Nurse Mode (1-10 Scale) -->
+                    <div class="mb-3 p-2 bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg">
+                        <div class="text-xs text-gray-600 mb-1">Mode Level</div>
+                        <div class="flex items-center justify-center gap-1">
+                            {% for i in range(1, 11) %}
+                            <div class="w-2 h-6 rounded {% if i <= nurse_mode_scale %}bg-gradient-to-t from-purple-500 to-pink-500{% else %}bg-gray-200{% endif %}">
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="text-lg font-bold text-purple-600 mt-1">{{ nurse_mode_scale }}/10</div>
+                    </div>
+                    
+                    <!-- Heart Beat GIF -->
+                    <div class="mb-3">
+                        <img src="{{ url_for('static', filename='assets/nurse/animations/heart-beat.gif') }}" 
+                             alt="Heartbeat" 
+                             class="w-16 h-16 mx-auto">
+                        <div class="text-xs text-gray-600 mt-1">{{ nurse.heartbeat_speed|title }} Heartbeat</div>
+                    </div>
+                    
+                    <!-- Nurse Emotion -->
+                    <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-3 border border-purple-200" data-tour="nurse-emotion">
+                        <div class="text-center mb-2">
+                            <div class="text-4xl mb-1">{{ emotion_info.emoji }}</div>
+                            <div class="font-bold text-purple-700">{{ emotion_info.label }}</div>
+                        </div>
+                        <p class="text-xs text-gray-700 italic">{{ emotion_info.message }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.emotion-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.5rem;
+    border-radius: 0.75rem;
+    transition: all 0.3s;
+    cursor: pointer;
+    border: 2px solid transparent;
+    background: white;
+    min-height: 80px;
+}
+
+@media (min-width: 640px) {
+    .emotion-btn {
+        gap: 0.5rem;
+        padding: 0.75rem;
+        min-height: 100px;
+    }
+}
+
+.emotion-btn .material-symbols-outlined {
+    font-size: 2rem;
+}
+
+@media (min-width: 640px) {
+    .emotion-btn .material-symbols-outlined {
+        font-size: 3rem;
+    }
+}
+
+.emotion-btn:hover {
+    transform: translateY(-2px) scale(1.02);
+    border-color: #9333ea;
+    background: linear-gradient(135deg, #faf5ff 0%, #fce7f3 100%);
+    box-shadow: 0 8px 20px -5px rgba(147, 51, 234, 0.3);
+}
+
+@media (min-width: 640px) {
+    .emotion-btn:hover {
+        transform: translateY(-4px) scale(1.05);
+        box-shadow: 0 10px 25px -5px rgba(147, 51, 234, 0.3);
+    }
+}
+
+.emotion-btn:active {
+    transform: translateY(-1px) scale(1.01);
+}
+
+.emotion-btn.selected {
+    border-color: #9333ea;
+    background: linear-gradient(135deg, #f3e8ff 0%, #fce7f3 100%);
+    box-shadow: 0 4px 15px rgba(147, 51, 234, 0.4);
+}
+</style>
+
+<div id="improvementTipsModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden" style="z-index: var(--z-modal-backdrop);" onclick="closeImprovementModal(event)">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] flex flex-col animate-slideIn relative" style="z-index: var(--z-modal-content);" onclick="event.stopPropagation()">
+        <div class="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-6 rounded-t-2xl flex-shrink-0">
+            <h3 class="text-2xl font-bold flex items-center gap-2">
+                <span class="material-symbols-outlined">psychology</span>
+                <span id="tipsModalTitle">Ways to Improve</span>
+            </h3>
+        </div>
+        <div class="p-6 overflow-y-auto flex-1">
+            <p id="nurseMessage" class="text-gray-700 dark:text-gray-300 mb-4 italic font-medium"></p>
+            <div id="tipsList" class="space-y-3">
+                <!-- Tips will be inserted here -->
+            </div>
+        </div>
+        <div class="p-6 pt-0 flex-shrink-0">
+            <button onclick="closeImprovementModal()" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-lg font-bold hover:shadow-lg transition-all">
+                Got it! 💙
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-30px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.animate-slideIn {
+    animation: slideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+</style>
+
+<script>
+// Emotion to icon mapping
+const emotionIcons = {
+    'happy': 'sentiment_very_satisfied',
+    'sad': 'sentiment_sad',
+    'anxious': 'sentiment_stressed',
+    'calm': 'self_improvement',
+    'energetic': 'bolt',
+    'tired': 'bedtime',
+    'frustrated': 'sentiment_frustrated',
+    'excited': 'celebration',
+    'worried': 'sentiment_worried',
+    'content': 'sentiment_calm'
+};
+
+const emotionColors = {
+    'happy': 'text-yellow-500',
+    'sad': 'text-blue-500',
+    'anxious': 'text-orange-500',
+    'calm': 'text-green-500',
+    'energetic': 'text-red-500',
+    'tired': 'text-gray-500',
+    'frustrated': 'text-red-600',
+    'excited': 'text-pink-500',
+    'worried': 'text-purple-500',
+    'content': 'text-teal-500'
+};
+
+function toggleFeelingSelector() {
+    const expanded = document.getElementById('feelingExpanded');
+    const collapsed = document.getElementById('feelingCollapsed');
+    
+    if (expanded.classList.contains('hidden')) {
+        // Show expanded, hide collapsed
+        expanded.classList.remove('hidden');
+        collapsed.classList.add('hidden');
+    } else {
+        // Show collapsed, hide expanded
+        expanded.classList.add('hidden');
+        collapsed.classList.remove('hidden');
+    }
+}
+
+function updateCollapsedView(emotion) {
+    const iconElement = document.getElementById('selectedEmotionIcon');
+    const textElement = document.getElementById('selectedEmotionText');
+    
+    if (iconElement && textElement) {
+        // Remove all color classes
+        iconElement.className = 'material-symbols-outlined text-4xl';
+        // Add the appropriate color class
+        iconElement.classList.add(emotionColors[emotion] || 'text-purple-600');
+        iconElement.textContent = emotionIcons[emotion] || 'sentiment_satisfied';
+        textElement.textContent = emotion;
+        
+        // Collapse the selector
+        document.getElementById('feelingExpanded').classList.add('hidden');
+        document.getElementById('feelingCollapsed').classList.remove('hidden');
+    }
+}
+
+async function selectEmotion(emotion) {
+    // Visual feedback
+    document.querySelectorAll('.emotion-btn').forEach(btn => btn.classList.remove('selected'));
+    event.target.closest('.emotion-btn').classList.add('selected');
+    
+    // Show loading state (bottom-right, no auto-remove)
+    let loadingNotif = null;
+    try {
+        loadingNotif = showNotification('Getting personalized tips...', 'info', false, 'bottom');
+        
+        const response = await fetch('/api/select-emotion', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({emotion})
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            if (loadingNotif && loadingNotif.parentElement) {
+                loadingNotif.remove();
+            }
+            
+            // Update collapsed view with selected emotion
+            updateCollapsedView(emotion);
+            
+            // Show improvement tips modal
+            if (data.improvement_tips && data.improvement_tips.length > 0) {
+                showImprovementTips(emotion, data.message, data.improvement_tips);
+            } else {
+                showNotification(data.message, 'success');
+            }
+        }
+    } catch (error) {
+        if (loadingNotif && loadingNotif.parentElement) {
+            loadingNotif.remove();
+        }
+        showNotification('Something went wrong. Please try again.', 'error');
+    }
+}
+
+function showImprovementTips(emotion, message, tips) {
+    const modal = document.getElementById('improvementTipsModal');
+    const title = document.getElementById('tipsModalTitle');
+    const nurseMsg = document.getElementById('nurseMessage');
+    const tipsList = document.getElementById('tipsList');
+    
+    // Set title based on emotion
+    const emotionTitles = {
+        'happy': 'Keep Your Happiness Going! 😊',
+        'sad': 'Ways to Feel Better 💙',
+        'anxious': 'Calm Your Mind 🌸',
+        'calm': 'Maintain Your Peace 🧘',
+        'energetic': 'Channel Your Energy! ⚡',
+        'tired': 'Recharge Yourself 😴',
+        'frustrated': 'Ease Your Frustration 💪',
+        'excited': 'Celebrate This Feeling! 🎉',
+        'worried': 'Find Your Comfort 🌿',
+        'content': 'Stay Content & Happy 😌'
+    };
+    
+    title.textContent = emotionTitles[emotion] || 'Ways to Improve';
+    nurseMsg.textContent = message;
+    
+    // Build tips list with better formatting
+    tipsList.innerHTML = '';
+    tips.forEach((tip, index) => {
+        const tipElement = document.createElement('div');
+        tipElement.className = 'flex gap-3 items-start p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border-2 border-purple-200 hover:shadow-md transition-all';
+        
+        // Format the tip text (support basic markdown-like formatting)
+        let formattedTip = tip
+            .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')  // Bold
+            .replace(/\*(.+?)\*/g, '<em>$1</em>')  // Italic
+            .replace(/\n/g, '<br>')  // Line breaks
+            .replace(/- (.+?)(?:\n|$)/g, '• $1<br>');  // Bullet points
+        
+        tipElement.innerHTML = `
+            <span class="material-symbols-outlined text-purple-600 text-2xl flex-shrink-0">check_circle</span>
+            <div class="text-gray-700 text-sm leading-relaxed">${formattedTip}</div>
+        `;
+        tipsList.appendChild(tipElement);
+    });
+    
+    // Show modal
+    modal.classList.remove('hidden');
+}
+
+function closeImprovementModal(event) {
+    if (!event || event.target.id === 'improvementTipsModal') {
+        document.getElementById('improvementTipsModal').classList.add('hidden');
+        // Don't reload - keep the collapsed view visible
+    }
+}
+
+// Initialize feeling selector state on page load
+document.addEventListener('DOMContentLoaded', function() {
+    {% if recent_mood %}
+    // User has already selected a feeling, show collapsed view
+    const recentEmotion = '{{ recent_mood.mood if recent_mood else "" }}';
+    if (recentEmotion && emotionIcons[recentEmotion]) {
+        updateCollapsedView(recentEmotion);
+    }
+    {% endif %}
+});
+
+function showNotification(message, type, autoRemove = true) {
+    const notification = document.createElement('div');
+    const colors = {
+        'success': 'from-green-600 to-emerald-600',
+        'error': 'from-red-600 to-rose-600',
+        'info': 'from-purple-600 to-pink-600'
+    };
+    // Using z-index 5000 for notifications (below modals but above most content)
+    notification.className = `fixed top-20 right-4 bg-gradient-to-r ${colors[type] || colors.info} text-white px-6 py-3 rounded-lg shadow-xl`;
+    notification.style.zIndex = '5000';
+    notification.style.animation = 'slideIn 0.3s ease-out';
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    if (autoRemove) {
+        setTimeout(() => {
+            if (notification.parentElement) {
+                notification.style.animation = 'fadeOut 0.3s ease';
+                setTimeout(() => {
+                    if (notification.parentElement) {
+                        notification.remove();
+                    }
+                }, 300);
+            }
+        }, 3000);
+    }
+    
+    return notification;
+}
+
+// Auto-update dashboard stats every 30 seconds
+async function updateDashboardStats() {
+    try {
+        const response = await fetch('/api/dashboard-stats');
+        if (response.ok) {
+            const data = await response.json();
+            if (data.success && data.stats) {
+                const stats = data.stats;
+                
+                // Update stat cards
+                const completedElem = document.querySelector('[data-stat="completed"]');
+                const comingElem = document.querySelector('[data-stat="coming"]');
+                const missedElem = document.querySelector('[data-stat="missed"]');
+                const totalElem = document.querySelector('[data-stat="total"]');
+                const streakElem = document.querySelector('[data-stat="streak"]');
+                const scoreElem = document.querySelector('[data-stat="score"]');
+                
+                if (completedElem) completedElem.textContent = stats.completed_today;
+                if (comingElem) comingElem.textContent = stats.coming_reminders;
+                if (missedElem) missedElem.textContent = stats.missed_reminders_today;
+                if (totalElem) totalElem.textContent = stats.total_routines;
+                if (streakElem) streakElem.textContent = `${stats.streak} days`;
+                if (scoreElem) scoreElem.textContent = stats.co_care_score;
+            }
+        }
+    } catch (error) {
+        console.error('Error updating dashboard stats:', error);
+    }
+}
+
+// Start auto-update interval (every 30 seconds)
+setInterval(updateDashboardStats, 30000);
+
+// Chart tooltip functionality
+function showChartTooltip(event, element) {
+    const tooltip = document.getElementById('chartTooltip');
+    const tooltipContent = document.getElementById('chartTooltipContent');
+    
+    const day = element.dataset.day;
+    const completed = element.dataset.completed;
+    const coming = element.dataset.coming;
+    const missed = element.dataset.missed;
+    
+    // Set tooltip content with all three metrics
+    tooltipContent.innerHTML = `
+        <div class="font-bold mb-1 text-center border-b border-gray-600 pb-1">${day}</div>
+        <div class="space-y-0.5">
+            <div class="flex items-center gap-2">
+                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                <span>Completed: <span class="font-semibold">${completed}</span></span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+                <span>Coming: <span class="font-semibold">${coming}</span></span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="w-2 h-2 bg-red-500 rounded-full"></span>
+                <span>Missed: <span class="font-semibold">${missed}</span></span>
+            </div>
+        </div>
+    `;
+    
+    // Position tooltip near cursor
+    const parentRect = tooltip.parentElement.getBoundingClientRect();
+    let x = event.clientX - parentRect.left + 15;
+    let y = event.clientY - parentRect.top - 10;
+    
+    // Adjust if tooltip goes off screen
+    if (x + 150 > parentRect.width) {
+        x = event.clientX - parentRect.left - 150 - 15;
+    }
+    if (y < 0) {
+        y = event.clientY - parentRect.top + 20;
+    }
+    
+    tooltip.style.left = x + 'px';
+    tooltip.style.top = y + 'px';
+    tooltip.classList.remove('hidden');
+}
+
+function hideChartTooltip() {
+    const tooltip = document.getElementById('chartTooltip');
+    tooltip.classList.add('hidden');
+}
+
+// Check if this is first time after signup and trigger tour
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('first_time') === 'true') {
+        // Remove the parameter from URL without reloading
+        window.history.replaceState({}, document.title, '/dashboard');
+        
+        // Start the tour after a brief delay
+        if (typeof startTourIfNeeded === 'function') {
+            startTourIfNeeded({{ 'true' if tour_completed else 'false' }});
+        }
+    }
+});
+</script>
+{% endblock %}

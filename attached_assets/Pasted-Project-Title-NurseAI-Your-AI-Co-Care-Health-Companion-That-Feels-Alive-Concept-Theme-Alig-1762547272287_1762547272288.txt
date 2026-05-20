@@ -1,0 +1,107 @@
+Project Title:
+“NurseAI – Your AI Co-Care Health Companion (That Feels Alive)”
+Concept (Theme-Aligned Version)
+NurseAI is a full-stack, intelligent, emotionally aware AI co-care companion that feels alive and evolves with the user.
+It collaborates with users to improve daily health, habits, routines, emotions, and self-care.
+Unlike typical AI tools that tell users what to do, NurseAI forms a human + AI partnership where both learn, reflect, and grow together.
+NurseAI has a living personality — it reacts, learns from users over time, adapts its tone, mood, heartbeat, and UI based on user interactions, and expresses its own emotions depending on how well you take care of yourself.
+This fulfills the optional wildcard theme:
+If it feels alive — it qualifies.
+NurseAI feels emotionally present, responsive, and bonded with the user like a caring nurse.
+🌟 Core Human + AI Co-Creation Features (Updated)
+1. Co-Created Onboarding — Form a Bond
+•	Login/Signup (Flask + Replit DB + Google Auth + optional Replit Auth)
+•	Collect profile: Name, Gender, Age, DOB, Contact, Address, Emergency Contact
+•	Human + AI Co-Setup:
+o	Ask users their preferred tone + care style
+o	User selects an avatar and names their AI nurse
+•	Nurse introduces itself with personality, emotions, and a “heartbeat” animation
+•	Sets initial care plan together with the user
+Onboarding must feel like “meeting someone,” not installing an app.
+2. Living Navigation System
+A responsive navbar/sidebar that feels alive:
+•	Nurse avatar with animated heartbeat + emotional reactions
+•	Mood-responsive expression + micro-animations (gif/lottie)
+•	Pages:
+o	Dashboard
+o	Co-Care Planner (routines + medicine)
+o	First-Aid Co-Assist
+o	Medical History
+o	Co-Reflection & Growth
+o	Account & Settings
+Add warmth, heartbeat pulsing, and subtle breathing animation so the nurse feels alive.
+3. Living Dashboard – Emotional Home Space
+No desktop scroll; minimal mobile scroll.
+Shows:
+•	Greeting that adapts to user’s past behavior + mood
+•	“How are you today?” mood check-in with emojis → changes UI theme + nurse emotion
+•	Nurse’s current Heartbeat + Emotional State
+•	Quote of the Day + subtle ambient animation
+•	Quick Stats:
+o	Medicines taken vs missed
+o	Healthy habit streaks (hydration, sleep, mood)
+o	Co-Care Score → reflects relationship health between user & NurseAI
+If user ignores self-care, nurse becomes sad or concerned — not judgmental.
+4. Co-Care Planner (Feels Alive & Collaborative)
+More than reminders — co-create routines:
+•	Add/remove routines: medicine, hydration, sleep, walks, breathing exercise
+•	AI suggests helpful micro-improvements personalized to user behavior
+•	User marking “DONE” triggers cheers, confetti, gif celebrations
+•	Missing tasks lowers nurse’s emotional energy (heartbeat slows, avatar dimmer)
+•	Browser notifications with positive tone
+Nurse responds like a supportive friend / caring companion.
+5. First-Aid Co-Assist & Live Guidance
+•	AI chat with voice + text + optional image upload
+•	“Stay With Me Mode” → step-by-step calming guidance
+•	Emergency mode: heartbeat speeds up + urgent UI theme
+•	Nurse uses comforting tone & grounding techniques
+•	Generates “First-Aid Summary Card” to save or share
+6. Medical History with Reflective Learning
+•	Upload/view/delete medical reports
+•	Add short reflections about symptoms or doctor visits
+•	AI + User co-reflect weekly → both contribute
+•	Ends with:
+“How should we adjust our plan next week?”
+Shows ongoing growth of relationship.
+7. Co-Reflection & Growth Page (Feels Alive)
+This page proves NurseAI learns & evolves:
+•	Weekly Co-Reflection Journal
+•	AI shares gentle insights, not verdicts
+•	User teaches NurseAI preferences (“Be more gentle/strict”, “More emojis”, “Less text”)
+•	Nurse adapts future tone, reminders, and emotional responses
+The relationship changes over time, making the AI feel alive.
+8. Settings
+•	Edit profile, privacy, data export, help tour, logout
+•	Languages: English, Hindi
+•	Accessibility modes
+•	Option to reset Nurse personality and memories (kept separate from account data)
+🧠 Tech Stack (Aligned to Living + Co-Creation Theme)
+Frontend
+•	HTML, Tailwind CSS
+•	Framer Motion or GSAP for living animations
+•	Chart.js or Recharts for analytics
+•	Mood-adaptive themes + glowing effects
+•	Realistic heartbeat animations for “alive” illusion
+•	Multi-language + emoji-rich UI
+Backend
+•	Flask
+•	Replit DB (tables: users, preferences, routines, moods, nurse_mood, reflections, medical_history)
+•	AI Integrations: OpenAI (create api key using replit)+ Perplexity(take api key input and store in environment)
+•	AI memory of preferences + emotional responses
+•	Browser Notifications + optional voice features
+🎨 UX Rules
+•	Post-signup “First Meeting Tour” with the nurse
+•	Smooth, lifelike animations + breathing/heartbeat loops
+•	Gen-Z vibecoding UI: emojis, gradients, micro-interactions
+•	Must evoke attachment — not just usage
+🎯 Final Goal (Wildcards + Primary Theme Achieved)
+Build a living AI co-care companion that:
+•	Feels emotionally present and alive
+•	Forms a relationship with the user that strengthens over time
+•	Co-creates routines, reflections, and growth plans with the user
+•	Changes mood, tone, UI, and heartbeat based on user care patterns
+•	Makes self-care feel supported, not lonely
+This satisfies BOTH themes:
+Theme	How NurseAI Fits
+Human + AI Co-Creation	Users and NurseAI collaborate, self-improve, co-reflect
+Wildcard: Feels Alive	Nurse has emotion, memory, heartbeat, evolving personality

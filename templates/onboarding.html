@@ -1,0 +1,356 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-3xl w-full bg-white/80 backdrop-blur rounded-3xl shadow-2xl p-8">
+        <div id="step1" class="onboarding-step">
+            <div class="text-center mb-8">
+                <div class="text-6xl mb-4 animate-pulse">
+                    <span class="material-symbols-outlined text-purple-600" style="font-size: 64px;">waving_hand</span>
+                </div>
+                <h2 class="text-3xl font-bold mb-2">Let's Get to Know Each Other</h2>
+                <p class="text-gray-600">This isn't just setup – we're forming a bond</p>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-gray-700 font-bold mb-2">What should I call you? <span class="text-red-500">*</span></label>
+                    <input type="text" id="name" class="w-full px-4 py-3 border-2 border-purple-300 rounded-lg focus:border-purple-500 focus:outline-none" placeholder="Your name" required>
+                    <div id="name-error" class="error-message hidden"></div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-gray-700 font-bold mb-2">Gender <span class="text-red-500">*</span></label>
+                        <select id="gender" class="w-full px-4 py-3 border-2 border-purple-300 rounded-lg focus:border-purple-500 focus:outline-none" required>
+                            <option value="">Select</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                            <option value="prefer-not-to-say">Prefer not to say</option>
+                        </select>
+                        <div id="gender-error" class="error-message hidden"></div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 font-bold mb-2">Age</label>
+                        <input type="number" id="age" class="w-full px-4 py-3 border-2 border-purple-300 rounded-lg focus:border-purple-500 focus:outline-none" placeholder="Your age" min="1" max="120">
+                        <div id="age-error" class="error-message hidden"></div>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-gray-700 font-bold mb-2">Date of Birth <span class="text-red-500">*</span></label>
+                    <input type="date" id="dob" class="w-full px-4 py-3 border-2 border-purple-300 rounded-lg focus:border-purple-500 focus:outline-none" required>
+                    <div id="dob-error" class="error-message hidden"></div>
+                </div>
+                
+                <div>
+                    <label class="block text-gray-700 font-bold mb-2">Contact Number <span class="text-red-500">*</span></label>
+                    <input type="tel" id="contact" class="w-full px-4 py-3 border-2 border-purple-300 rounded-lg focus:border-purple-500 focus:outline-none" placeholder="Your phone number" required>
+                    <div id="contact-error" class="error-message hidden"></div>
+                </div>
+                
+                <div>
+                    <label class="block text-gray-700 font-bold mb-2">Address <span class="text-red-500">*</span></label>
+                    <textarea id="address" class="w-full px-4 py-3 border-2 border-purple-300 rounded-lg focus:border-purple-500 focus:outline-none" rows="2" placeholder="Your address" required></textarea>
+                    <div id="address-error" class="error-message hidden"></div>
+                </div>
+                
+                <div>
+                    <label class="block text-gray-700 font-bold mb-2">Emergency Contact <span class="text-red-500">*</span></label>
+                    <input type="tel" id="emergency_contact" class="w-full px-4 py-3 border-2 border-purple-300 rounded-lg focus:border-purple-500 focus:outline-none" placeholder="Emergency contact number" required>
+                    <div id="emergency-contact-error" class="error-message hidden"></div>
+                </div>
+                
+                <button onclick="nextStep()" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 rounded-lg font-bold text-lg hover:shadow-xl transform hover:scale-105 transition-all">
+                    Continue
+                </button>
+            </div>
+        </div>
+        
+        <div id="step2" class="onboarding-step hidden">
+            <div class="text-center mb-8">
+                <div class="mb-4">
+                    <img src="{{ url_for('static', filename='assets/nurse/animations/heart-beat.gif') }}" 
+                         alt="Heart" 
+                         class="w-16 h-16 inline-block">
+                </div>
+                <h2 class="text-3xl font-bold mb-2">Now, Let's Create Your AI Nurse</h2>
+                <p class="text-gray-600">This companion will grow and adapt with you</p>
+            </div>
+            
+            <div class="space-y-6">
+                <div>
+                    <label class="block text-gray-700 font-bold mb-2">What would you like to name your nurse? <span class="text-red-500">*</span></label>
+                    <input type="text" id="nurse_name" class="w-full px-4 py-3 border-2 border-purple-300 rounded-lg focus:border-purple-500 focus:outline-none" placeholder="e.g., Luna, Alex, Care" value="NurseAI" required>
+                    <div id="nurse-name-error" class="error-message hidden"></div>
+                </div>
+                
+                <div>
+                    <label class="block text-gray-700 font-bold mb-2">Choose an avatar</label>
+                    <div class="grid grid-cols-5 gap-3">
+                        <button onclick="selectAvatar('avatar-1.png')" class="avatar-btn p-2 border-2 border-gray-300 rounded-lg hover:border-purple-500 hover:shadow-lg transition-all transform hover:scale-105" data-avatar="avatar-1.png">
+                            <img src="{{ url_for('static', filename='assets/nurse/avatars/avatar-1.png') }}" alt="Avatar 1" class="w-full h-auto rounded-lg">
+                        </button>
+                        <button onclick="selectAvatar('avatar-2.png')" class="avatar-btn p-2 border-2 border-gray-300 rounded-lg hover:border-purple-500 hover:shadow-lg transition-all transform hover:scale-105" data-avatar="avatar-2.png">
+                            <img src="{{ url_for('static', filename='assets/nurse/avatars/avatar-2.png') }}" alt="Avatar 2" class="w-full h-auto rounded-lg">
+                        </button>
+                        <button onclick="selectAvatar('avatar-3.png')" class="avatar-btn p-2 border-2 border-gray-300 rounded-lg hover:border-purple-500 hover:shadow-lg transition-all transform hover:scale-105" data-avatar="avatar-3.png">
+                            <img src="{{ url_for('static', filename='assets/nurse/avatars/avatar-3.png') }}" alt="Avatar 3" class="w-full h-auto rounded-lg">
+                        </button>
+                        <button onclick="selectAvatar('avatar-4.png')" class="avatar-btn p-2 border-2 border-gray-300 rounded-lg hover:border-purple-500 hover:shadow-lg transition-all transform hover:scale-105" data-avatar="avatar-4.png">
+                            <img src="{{ url_for('static', filename='assets/nurse/avatars/avatar-4.png') }}" alt="Avatar 4" class="w-full h-auto rounded-lg">
+                        </button>
+                        <button onclick="selectAvatar('avatar-5.png')" class="avatar-btn p-2 border-2 border-gray-300 rounded-lg hover:border-purple-500 hover:shadow-lg transition-all transform hover:scale-105" data-avatar="avatar-5.png">
+                            <img src="{{ url_for('static', filename='assets/nurse/avatars/avatar-5.png') }}" alt="Avatar 5" class="w-full h-auto rounded-lg">
+                        </button>
+                        <button onclick="selectAvatar('avatar-6.png')" class="avatar-btn p-2 border-2 border-gray-300 rounded-lg hover:border-purple-500 hover:shadow-lg transition-all transform hover:scale-105" data-avatar="avatar-6.png">
+                            <img src="{{ url_for('static', filename='assets/nurse/avatars/avatar-6.png') }}" alt="Avatar 6" class="w-full h-auto rounded-lg">
+                        </button>
+                        <button onclick="selectAvatar('avatar-7.png')" class="avatar-btn p-2 border-2 border-gray-300 rounded-lg hover:border-purple-500 hover:shadow-lg transition-all transform hover:scale-105" data-avatar="avatar-7.png">
+                            <img src="{{ url_for('static', filename='assets/nurse/avatars/avatar-7.png') }}" alt="Avatar 7" class="w-full h-auto rounded-lg">
+                        </button>
+                        <button onclick="selectAvatar('avatar-8.png')" class="avatar-btn p-2 border-2 border-gray-300 rounded-lg hover:border-purple-500 hover:shadow-lg transition-all transform hover:scale-105" data-avatar="avatar-8.png">
+                            <img src="{{ url_for('static', filename='assets/nurse/avatars/avatar-8.png') }}" alt="Avatar 8" class="w-full h-auto rounded-lg">
+                        </button>
+                        <button onclick="selectAvatar('avatar-9.png')" class="avatar-btn p-2 border-2 border-gray-300 rounded-lg hover:border-purple-500 hover:shadow-lg transition-all transform hover:scale-105" data-avatar="avatar-9.png">
+                            <img src="{{ url_for('static', filename='assets/nurse/avatars/avatar-9.png') }}" alt="Avatar 9" class="w-full h-auto rounded-lg">
+                        </button>
+                        <button onclick="selectAvatar('avatar-10.png')" class="avatar-btn p-2 border-2 border-gray-300 rounded-lg hover:border-purple-500 hover:shadow-lg transition-all transform hover:scale-105" data-avatar="avatar-10.png">
+                            <img src="{{ url_for('static', filename='assets/nurse/avatars/avatar-10.png') }}" alt="Avatar 10" class="w-full h-auto rounded-lg">
+                        </button>
+                    </div>
+                    <input type="hidden" id="nurse_avatar" value="avatar-1.png">
+                </div>
+                
+                <div>
+                    <label class="block text-gray-700 font-bold mb-2">How should your nurse talk to you?</label>
+                    <select id="tone_preference" class="w-full px-4 py-3 border-2 border-purple-300 rounded-lg focus:border-purple-500 focus:outline-none">
+                        <option value="warm">Warm & Gentle</option>
+                        <option value="cheerful">Cheerful & Upbeat</option>
+                        <option value="calm">Calm & Soothing</option>
+                        <option value="motivating">Motivating & Energetic</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-gray-700 font-bold mb-2">Care style preference</label>
+                    <select id="care_style" class="w-full px-4 py-3 border-2 border-purple-300 rounded-lg focus:border-purple-500 focus:outline-none">
+                        <option value="balanced">Balanced - Mix of support & accountability</option>
+                        <option value="supportive">Supportive - Gentle encouragement</option>
+                        <option value="strict">Strict - Firm accountability</option>
+                    </select>
+                </div>
+                
+                <div class="flex gap-4">
+                    <button onclick="prevStep()" class="flex-1 bg-gray-300 text-gray-700 py-4 rounded-lg font-bold hover:bg-gray-400 transition-all">
+                        Back
+                    </button>
+                    <button onclick="completeOnboarding()" class="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 rounded-lg font-bold hover:shadow-xl transform hover:scale-105 transition-all">
+                        Meet My Nurse! 🎉
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.error-message {
+    color: #dc2626;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    font-weight: 500;
+}
+
+.error-message.hidden {
+    display: none;
+}
+
+.input-error {
+    border-color: #dc2626 !important;
+}
+
+.avatar-btn.selected {
+    border-color: #9333ea !important;
+    border-width: 3px;
+    box-shadow: 0 0 20px rgba(147, 51, 234, 0.5);
+}
+</style>
+
+<script>
+let currentStep = 1;
+
+function showError(fieldId, message) {
+    const errorDiv = document.getElementById(fieldId + '-error');
+    const input = document.getElementById(fieldId);
+    
+    if (errorDiv && input) {
+        errorDiv.textContent = message;
+        errorDiv.classList.remove('hidden');
+        input.classList.add('input-error');
+    }
+}
+
+function clearError(fieldId) {
+    const errorDiv = document.getElementById(fieldId + '-error');
+    const input = document.getElementById(fieldId);
+    
+    if (errorDiv && input) {
+        errorDiv.classList.add('hidden');
+        input.classList.remove('input-error');
+    }
+}
+
+function clearAllErrors() {
+    document.querySelectorAll('.error-message').forEach(el => el.classList.add('hidden'));
+    document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+}
+
+function validateStep1() {
+    clearAllErrors();
+    let isValid = true;
+    
+    const name = document.getElementById('name').value.trim();
+    if (!name) {
+        showError('name', 'Please enter your name');
+        isValid = false;
+    } else if (name.length < 2) {
+        showError('name', 'Name must be at least 2 characters');
+        isValid = false;
+    }
+    
+    const gender = document.getElementById('gender').value;
+    if (!gender) {
+        showError('gender', 'Please select your gender');
+        isValid = false;
+    }
+    
+    const dob = document.getElementById('dob').value;
+    if (!dob) {
+        showError('dob', 'Please select your date of birth');
+        isValid = false;
+    } else {
+        const dobDate = new Date(dob);
+        const today = new Date();
+        if (dobDate > today) {
+            showError('dob', 'Date of birth cannot be in the future');
+            isValid = false;
+        }
+    }
+    
+    const contact = document.getElementById('contact').value.trim();
+    if (!contact) {
+        showError('contact', 'Please enter your contact number');
+        isValid = false;
+    } else if (contact.length < 10) {
+        showError('contact', 'Please enter a valid contact number');
+        isValid = false;
+    }
+    
+    const address = document.getElementById('address').value.trim();
+    if (!address) {
+        showError('address', 'Please enter your address');
+        isValid = false;
+    } else if (address.length < 5) {
+        showError('address', 'Please enter a complete address');
+        isValid = false;
+    }
+    
+    const emergencyContact = document.getElementById('emergency_contact').value.trim();
+    if (!emergencyContact) {
+        showError('emergency-contact', 'Please enter emergency contact number');
+        isValid = false;
+    } else if (emergencyContact.length < 10) {
+        showError('emergency-contact', 'Please enter a valid emergency contact');
+        isValid = false;
+    }
+    
+    return isValid;
+}
+
+function validateStep2() {
+    clearAllErrors();
+    let isValid = true;
+    
+    const nurseName = document.getElementById('nurse_name').value.trim();
+    if (!nurseName) {
+        showError('nurse-name', 'Please enter a name for your nurse');
+        isValid = false;
+    } else if (nurseName.length < 2) {
+        showError('nurse-name', 'Nurse name must be at least 2 characters');
+        isValid = false;
+    }
+    
+    return isValid;
+}
+
+function nextStep() {
+    if (currentStep === 1) {
+        if (!validateStep1()) {
+            return;
+        }
+        document.getElementById('step1').classList.add('hidden');
+        document.getElementById('step2').classList.remove('hidden');
+        currentStep = 2;
+    }
+}
+
+function prevStep() {
+    if (currentStep === 2) {
+        document.getElementById('step2').classList.add('hidden');
+        document.getElementById('step1').classList.remove('hidden');
+        currentStep = 1;
+    }
+}
+
+function selectAvatar(avatar) {
+    document.querySelectorAll('.avatar-btn').forEach(btn => {
+        btn.classList.remove('selected', 'border-purple-500', 'bg-purple-50');
+    });
+    event.target.closest('.avatar-btn').classList.add('selected', 'border-purple-500', 'bg-purple-50');
+    document.getElementById('nurse_avatar').value = avatar;
+}
+
+async function completeOnboarding() {
+    if (!validateStep2()) {
+        return;
+    }
+    
+    const data = {
+        name: document.getElementById('name').value.trim(),
+        gender: document.getElementById('gender').value,
+        age: parseInt(document.getElementById('age').value) || null,
+        dob: document.getElementById('dob').value,
+        contact: document.getElementById('contact').value.trim(),
+        address: document.getElementById('address').value.trim(),
+        emergency_contact: document.getElementById('emergency_contact').value.trim(),
+        nurse_name: document.getElementById('nurse_name').value.trim(),
+        nurse_avatar: document.getElementById('nurse_avatar').value,
+        tone_preference: document.getElementById('tone_preference').value,
+        care_style: document.getElementById('care_style').value
+    };
+    
+    try {
+        const response = await fetch('/api/complete-onboarding', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+            window.location.href = '/dashboard?first_time=true';
+        } else {
+            alert(result.error || 'Failed to complete onboarding. Please try again.');
+        }
+    } catch (error) {
+        alert('Network error. Please check your connection and try again.');
+    }
+}
+
+document.querySelectorAll('.avatar-btn')[0].click();
+</script>
+{% endblock %}

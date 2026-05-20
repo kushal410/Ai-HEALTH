@@ -1,0 +1,48 @@
+/* 
+ * Z-Index Hierarchy System for NurseAI
+ * Centralized z-index management to prevent stacking conflicts
+ */
+
+:root {
+    /* Base layers */
+    --z-base: 0;
+    --z-dropdown: 1000;
+    
+    /* Navigation */
+    --z-navbar: 2000;
+    --z-navbar-dropdown: 2100;
+    
+    /* Content overlays */
+    --z-tooltip: 3000;
+    --z-popover: 4000;
+    
+    /* Notifications */
+    --z-notification: 5000;
+    
+    /* Modals and dialogs */
+    --z-modal-backdrop: 8000;
+    --z-modal-content: 8001;
+    
+    /* Tour system */
+    --z-tour-overlay: 10000;
+    --z-tour-highlight: 10001;
+    --z-tour-tooltip: 10002;
+    
+    /* Critical overlays */
+    --z-critical: 15000;
+}
+
+/* Utility classes for quick z-index application */
+.z-base { z-index: var(--z-base); }
+.z-dropdown { z-index: var(--z-dropdown); }
+.z-navbar { z-index: var(--z-navbar); }
+.z-navbar-dropdown { z-index: var(--z-navbar-dropdown); }
+.z-tooltip { z-index: var(--z-tooltip); }
+.z-popover { z-index: var(--z-popover); }
+.z-notification { z-index: var(--z-notification); }
+.z-modal-backdrop { z-index: var(--z-modal-backdrop); }
+.z-modal-content { z-index: var(--z-modal-content); }
+.z-tour-overlay { z-index: var(--z-tour-overlay); }
+.z-tour-highlight { z-index: var(--z-tour-highlight); }
+.z-tour-tooltip { z-index: var(--z-tour-tooltip); }
+.z-critical { z-index: var(--z-critical); }

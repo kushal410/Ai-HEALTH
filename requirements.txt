@@ -1,0 +1,14 @@
+Flask>=2.0
+Flask-Login
+Flask-SQLAlchemy
+SQLAlchemy
+Flask-Dance
+python-dotenv
+PyJWT
+oauthlib
+Werkzeug
+requests
+psycopg2-binary
+gunicorn
+
+# Optional for local SQLite (no extra package needed)

@@ -1,0 +1,113 @@
+.heartbeat-normal {
+    animation: heartbeat-normal 1.5s ease-in-out infinite;
+}
+
+.heartbeat-fast {
+    animation: heartbeat-fast 0.8s ease-in-out infinite;
+}
+
+
+.heartbeat-slow {
+    animation: heartbeat-slow 2.5s ease-in-out infinite;
+}
+
+@keyframes heartbeat-normal {
+    0%, 100% { transform: scale(1); }
+    25% { transform: scale(1.1); }
+    50% { transform: scale(1); }
+}
+
+@keyframes heartbeat-fast {
+    0%, 100% { transform: scale(1); }
+    25% { transform: scale(1.15); }
+    50% { transform: scale(1); }
+}
+
+@keyframes heartbeat-slow {
+    0%, 100% { transform: scale(1); }
+    25% { transform: scale(1.05); }
+    50% { transform: scale(1); }
+}
+
+.mood-btn {
+    font-size: 2rem;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    transition: all 0.3s;
+    cursor: pointer;
+    border: 2px solid transparent;
+}
+
+.mood-btn:hover {
+    transform: scale(1.2);
+    border-color: #9333ea;
+}
+
+.celebrate {
+    animation: celebrate 0.6s ease-out;
+}
+
+@keyframes celebrate {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.5) rotate(10deg); }
+    100% { transform: scale(1); }
+}
+.profile-dropdown {
+    position: absolute !important;
+    z-index: 9999 !important;
+}
+/* Celebration Overlay Styles */
+.celebration-overlay {
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(4px);
+}
+
+.celebration-container {
+    text-align: center;
+    animation: bounceIn 0.5s ease;
+}
+
+.celebration-gif {
+    width: 256px;
+    height: 256px;
+    object-fit: contain;
+    filter: drop-shadow(0 10px 30px rgba(147, 51, 234, 0.5));
+}
+
+.celebration-text {
+    font-size: 32px;
+    font-weight: bold;
+    color: white;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    margin-top: 20px;
+    animation: pulse-celebration 1s ease infinite;
+}
+
+@keyframes bounceIn {
+    0% {
+        transform: scale(0.3);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+@keyframes pulse-celebration {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}

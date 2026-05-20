@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-screen p-4">
+    <div class="max-w-7xl mx-auto">
+        {% include 'nav.html' %}
+        
+        <div class="mt-6">
+            <div class="bg-white/80 backdrop-blur rounded-2xl p-8 shadow-lg mb-6">
+                <h2 class="text-3xl font-bold mb-4 flex items-center gap-3">
+                    <span class="material-symbols-outlined text-green-600" style="font-size: 36px;">spa</span>
+                    Co-Reflection & Growth
+                </h2>
+                <p class="text-gray-600 mb-6">This is where we grow together. Share your thoughts, and I'll share mine.</p>
+                
+                <div class="mb-6">
+                    <button onclick="generateInsight()" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-lg font-bold">
+                        Generate Weekly Insight
+                    </button>
+                </div>
+                
+                <div id="insightBox" class="hidden mb-6 p-6 bg-purple-50 rounded-lg">
+                    <h3 class="font-bold mb-2">AI Insight:</h3>
+                    <p id="insightText" class="text-gray-700"></p>
+                </div>
+                
+                <div>
+                    <label class="block font-bold mb-2">Your Reflection:</label>
+                    <textarea id="userReflection" class="w-full px-4 py-3 border-2 rounded-lg" rows="6" placeholder="How was your week? What did you learn about yourself?"></textarea>
+                </div>
+                
+                <div class="mt-6">
+                    <h3 class="font-bold mb-3">Teach me your preferences:</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm mb-2">Emoji Level:</label>
+                            <select id="emojiLevel" class="w-full px-4 py-2 border-2 rounded-lg">
+                                <option value="low">Low</option>
+                                <option value="moderate">Moderate</option>
+                                <option value="high">High</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm mb-2">Strictness:</label>
+                            <select id="strictness" class="w-full px-4 py-2 border-2 rounded-lg">
+                                <option value="gentle">Gentle</option>
+                                <option value="balanced">Balanced</option>
+                                <option value="strict">Strict</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm mb-2">Tone:</label>
+                            <select id="tone" class="w-full px-4 py-2 border-2 rounded-lg">
+                                <option value="warm">Warm</option>
+                                <option value="cheerful">Cheerful</option>
+                                <option value="calm">Calm</option>
+                                <option value="motivating">Motivating</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <button onclick="saveReflection()" class="mt-6 w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 rounded-lg font-bold text-lg">
+                    Save Reflection
+                </button>
+            </div>
+            
+            <div class="space-y-4">
+                <h3 class="text-2xl font-bold">Past Reflections</h3>
+                {% for ref in reflections %}
+                <div class="bg-white/80 backdrop-blur rounded-lg p-6 shadow">
+                    <p class="text-sm text-gray-500 mb-2">Week of {{ ref.week_start.strftime('%Y-%m-%d') }}</p>
+                    {% if ref.user_reflection %}
+                    <div class="mb-3">
+                        <strong>Your reflection:</strong>
+                        <p class="text-gray-700">{{ ref.user_reflection }}</p>
+                    </div>
+                    {% endif %}
+                    {% if ref.ai_insight %}
+                    <div class="p-4 bg-purple-50 rounded">
+                        <strong class="flex items-center gap-2 mb-2">
+                            <span class="material-symbols-outlined text-purple-600">auto_awesome</span>
+                            AI Insight:
+                        </strong>
+                        <div class="text-gray-700 leading-relaxed formatted-insight" data-insight="{{ ref.ai_insight }}">{{ ref.ai_insight }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentInsight = '';
+
+async function generateInsight() {
+    const response = await fetch('/api/generate-insight', {
+        method: 'POST'
+    });
+    const data = await response.json();
+    
+    // Format insight text with markdown-like formatting
+    let formattedInsight = data.insight
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')  // Bold
+        .replace(/\*(.+?)\*/g, '<em>$1</em>')  // Italic
+        .replace(/\n/g, '<br>')  // Line breaks
+        .replace(/- (.+?)(?:\n|$)/g, '• $1<br>');  // Bullet points
+    
+    document.getElementById('insightBox').classList.remove('hidden');
+    document.getElementById('insightText').innerHTML = formattedInsight;
+    currentInsight = data.insight;
+}
+
+async function saveReflection() {
+    const data = {
+        user_reflection: document.getElementById('userReflection').value,
+        ai_insight: currentInsight,
+        co_care_score: 75
+    };
+    
+    const response = await fetch('/api/save-reflection', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    });
+    
+    const prefs = {
+        emoji_level: document.getElementById('emojiLevel').value,
+        strictness_level: document.getElementById('strictness').value,
+        tone_preference: document.getElementById('tone').value
+    };
+    
+    await fetch('/api/update-nurse-preferences', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(prefs)
+    });
+    
+    if (response.ok) {
+        showNotification('Reflection saved! I\'ve learned from your preferences. 💙', 'success');
+        setTimeout(() => location.reload(), 2000);
+    }
+}
+
+// Format past reflection insights
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.formatted-insight').forEach(elem => {
+        const text = elem.getAttribute('data-insight');
+        if (text) {
+            const formatted = text
+                .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.+?)\*/g, '<em>$1</em>')
+                .replace(/\n/g, '<br>')
+                .replace(/- (.+?)(?:\n|$)/g, '• $1<br>');
+            elem.innerHTML = formatted;
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-screen p-4">
+    <div class="max-w-7xl mx-auto">
+        {% include 'nav.html' %}
+        
+        <div class="mt-6">
+            <div class="bg-white/80 backdrop-blur rounded-2xl p-6 shadow-lg mb-6">
+                <h2 class="text-2xl font-bold mb-4 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-purple-600">folder_open</span>
+                    Medical History
+                </h2>
+                <div class="flex gap-3 flex-wrap">
+                    <button onclick="showAddModal()" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-lg font-bold hover:shadow-lg transition-all">
+                        <span class="material-symbols-outlined inline-block align-middle mr-1" style="font-size: 20px;">add</span>
+                        Add Record
+                    </button>
+                    <button onclick="downloadHistory()" class="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-3 rounded-lg font-bold hover:shadow-lg transition-all">
+                        <span class="material-symbols-outlined inline-block align-middle mr-1" style="font-size: 20px;">download</span>
+                        Download All
+                    </button>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {% for record in records %}
+                <div class="bg-white/80 backdrop-blur rounded-lg p-6 shadow relative">
+                    <h3 class="text-xl font-bold mb-2">{{ record.title }}</h3>
+                    <p class="text-gray-600 mb-2">{{ record.description |truncate(100) }}</p>
+                    {% if record.reflection %}
+                    <div class="mt-3 p-3 bg-purple-50 rounded">
+                        <p class="text-sm text-gray-700"><strong>Reflection:</strong> {{ record.reflection |truncate(80) }}</p>
+                    </div>
+                    {% endif %}
+                    <div class="flex items-center justify-between mt-4">
+                        <p class="text-sm text-gray-500">{{ record.created_at.strftime('%Y-%m-%d') }}</p>
+                        <button onclick="viewRecord({{ record.id }})" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-1">
+                            <span class="material-symbols-outlined" style="font-size: 18px;">visibility</span>
+                            View Full
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="addModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center" style="z-index: var(--z-modal-backdrop);">
+    <div class="bg-white rounded-2xl p-8 max-w-md w-full m-4">
+        <h3 class="text-2xl font-bold mb-4">Add Medical Record</h3>
+        <form id="recordForm" enctype="multipart/form-data" class="space-y-4">
+            <input type="text" name="title" placeholder="Title" required class="w-full px-4 py-2 border-2 rounded-lg">
+            <textarea name="description" placeholder="Description" class="w-full px-4 py-2 border-2 rounded-lg" rows="3"></textarea>
+            <textarea name="reflection" placeholder="Your reflection" class="w-full px-4 py-2 border-2 rounded-lg" rows="2"></textarea>
+            <input type="file" name="file" class="w-full px-4 py-2 border-2 rounded-lg">
+            <div class="flex gap-4">
+                <button type="button" onclick="closeAddModal()" class="flex-1 bg-gray-300 px-4 py-2 rounded-lg">Cancel</button>
+                <button type="submit" class="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-lg font-bold">Add</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="viewModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center" style="z-index: var(--z-modal-backdrop);" onclick="closeViewModal(event)">
+    <div class="bg-white rounded-2xl p-8 max-w-2xl w-full m-4 max-h-[80vh] overflow-y-auto" onclick="event.stopPropagation()">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-2xl font-bold" id="viewTitle"></h3>
+            <button onclick="closeViewModal()" class="text-gray-500 hover:text-gray-700">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <div class="space-y-4">
+            <div>
+                <h4 class="font-bold text-gray-700 mb-2">Description:</h4>
+                <p class="text-gray-600" id="viewDescription"></p>
+            </div>
+            <div id="viewReflectionSection" class="hidden">
+                <h4 class="font-bold text-gray-700 mb-2">Reflection:</h4>
+                <div class="p-4 bg-purple-50 rounded-lg">
+                    <p class="text-gray-700" id="viewReflection"></p>
+                </div>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500" id="viewDate"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showAddModal() {
+    document.getElementById('addModal').classList.remove('hidden');
+    document.getElementById('addModal').classList.add('flex');
+}
+
+function closeAddModal() {
+    document.getElementById('addModal').classList.add('hidden');
+    document.getElementById('addModal').classList.remove('flex');
+}
+
+async function downloadHistory() {
+    window.location.href = '/api/download-medical-history';
+}
+
+async function viewRecord(recordId) {
+    try {
+        const response = await fetch(`/api/view-medical-record/${recordId}`);
+        if (response.ok) {
+            const data = await response.json();
+            document.getElementById('viewTitle').textContent = data.title;
+            document.getElementById('viewDescription').textContent = data.description;
+            
+            if (data.reflection) {
+                // Format reflection text with basic markdown-like formatting
+                let formattedReflection = data.reflection
+                    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')  // Bold
+                    .replace(/\*(.+?)\*/g, '<em>$1</em>')  // Italic
+                    .replace(/\n/g, '<br>')  // Line breaks
+                    .replace(/- (.+?)(?:\n|$)/g, '• $1<br>');  // Bullet points
+                
+                document.getElementById('viewReflection').innerHTML = formattedReflection;
+                document.getElementById('viewReflectionSection').classList.remove('hidden');
+            } else {
+                document.getElementById('viewReflectionSection').classList.add('hidden');
+            }
+            
+            const date = new Date(data.created_at);
+            document.getElementById('viewDate').textContent = `Created: ${date.toLocaleDateString()}`;
+            
+            document.getElementById('viewModal').classList.remove('hidden');
+            document.getElementById('viewModal').classList.add('flex');
+        }
+    } catch (error) {
+        console.error('Error viewing record:', error);
+    }
+}
+
+function closeViewModal(event) {
+    if (!event || event.target.id === 'viewModal') {
+        document.getElementById('viewModal').classList.add('hidden');
+        document.getElementById('viewModal').classList.remove('flex');
+    }
+}
+
+document.getElementById('recordForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    
+    const response = await fetch('/api/add-medical-record', {
+        method: 'POST',
+        body: formData
+    });
+    
+    if (response.ok) {
+        location.reload();
+    }
+});
+</script>
+{% endblock %}

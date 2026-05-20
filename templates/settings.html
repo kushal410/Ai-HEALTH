@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-screen p-4">
+    <div class="max-w-7xl mx-auto">
+        {% include 'nav.html' %}
+        
+        <div class="mt-6 bg-white/80 backdrop-blur rounded-2xl p-8 shadow-lg">
+            <h2 class="text-3xl font-bold mb-6 flex items-center gap-3">
+                <span class="material-symbols-outlined text-purple-600" style="font-size: 36px;">settings</span>
+                Settings
+            </h2>
+            
+            <div class="space-y-6">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Profile Information</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-bold mb-2">Name</label>
+                            <input type="text" id="name" value="{{ user.name }}" class="w-full px-4 py-2 border-2 rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold mb-2">Contact</label>
+                            <input type="tel" id="contact" value="{{ user.contact or '' }}" class="w-full px-4 py-2 border-2 rounded-lg">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-bold mb-2">Address</label>
+                            <textarea id="address" class="w-full px-4 py-2 border-2 rounded-lg" rows="2">{{ user.address or '' }}</textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold mb-2">Emergency Contact</label>
+                            <input type="tel" id="emergency_contact" value="{{ user.emergency_contact or '' }}" class="w-full px-4 py-2 border-2 rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold mb-2">Language</label>
+                            <select id="language" class="w-full px-4 py-2 border-2 rounded-lg">
+                                <option value="en" {% if user.language == 'en' %}selected{% endif %}>English</option>
+                                <option value="hi" {% if user.language == 'hi' %}selected{% endif %}>Hindi</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button onclick="updateProfile()" class="mt-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-lg font-bold">
+                        Update Profile
+                    </button>
+                </div>
+                
+                <div class="border-t pt-6">
+                    <h3 class="text-xl font-bold mb-4">Your Nurse: {{ nurse.nurse_name }}</h3>
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="text-6xl heartbeat-{{ nurse.heartbeat_speed }}">
+                            <span class="material-symbols-outlined text-purple-600" style="font-size: 64px;">
+                            {% if nurse.nurse_avatar == 'heart' %}favorite
+                            {% elif nurse.nurse_avatar == 'star' %}star
+                            {% elif nurse.nurse_avatar == 'flower' %}local_florist
+                            {% else %}favorite{% endif %}
+                            </span>
+                        </div>
+                        <div>
+                            <p class="text-gray-600">Current Mood: {{ nurse.current_mood }}</p>
+                            <p class="text-gray-600">Energy: {{ nurse.energy_level }}%</p>
+                            <p class="text-gray-600">Heartbeat: {{ nurse.heartbeat_speed }}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="border-t pt-6">
+                    <h3 class="text-xl font-bold mb-4">Account Actions</h3>
+                    <a href="{{ url_for('replit_auth.logout') }}" class="inline-block bg-red-500 text-white px-6 py-3 rounded-lg font-bold hover:bg-red-600">
+                        Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+async function updateProfile() {
+    const data = {
+        name: document.getElementById('name').value,
+        contact: document.getElementById('contact').value,
+        address: document.getElementById('address').value,
+        emergency_contact: document.getElementById('emergency_contact').value,
+        language: document.getElementById('language').value
+    };
+    
+    const response = await fetch('/api/update-profile', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    });
+    
+    if (response.ok) {
+        showNotification('Profile updated successfully!', 'success');
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,38 @@
+Additional Enhancements to Include:
+1.	Interactive App Onboarding Tour
+o	Add a guided app tour for first-time users after sign-up/login.
+o	The tour should highlight: Dashboard, Reminder System, Nurse Emotions, First-Aid Chat, Language Switch, Theme Switch, Help Center.
+o	Include step-by-step tooltips or overlays with “Next / Skip Tour / Replay Later” options.
+2.	Nurse Feelings System (10 Emotions with Labels)
+o	Display AI Nurse’s emotional state using animated GIFs + label text, not just emojis.
+o	Feelings must have:
+Emotion Name + Animation + Short Meaning + Trigger behaviour
+o	Include at least 10 emotions (e.g., Happy, Proud, Worried, Sad, Energetic, Angry, Calm, Sleepy, Excited, Disappointed).
+3.	Replace OpenAI With Perplexity
+o	Remove OpenAI integration completely.
+o	Use Perplexity API as the only AI engine for:
+health advice, first-aid support, emotional feedback, summaries, recommendations.
+4.	Assets & File Structure for Nurse Animations and Avatars
+o	Create a dedicated folder structure for assets:
+/static/assets/nurse/avatars/
+/static/assets/nurse/animations/
+/static/assets/nurse/feelings/
+/static/assets/sounds/
+/static/assets/icons/
+•	•  
+Replace emojis with real animated Nurse GIFs (for emotions, heartbeats, reactions).
+•	Add multiple avatar options for nurse selection.
+•  Language Support: English + Hindi
+•	Provide multilingual UI: English and Hindi.
+•	Include "Change Language" option in Dashboard and Settings.
+•	Support multilingual nurse conversations.
+•	Add a translation file or dictionary-based config system for future expansion.
+•  Theme & Convenience Controls on Dashboard
+•	Add quick-access buttons inside the dashboard for:
+o	Theme Change (Light, Dark, Mood-based Dynamic)
+o	Language Switch
+o	Help Center → App Tour, FAQs, How To Use, Contact/Support
+•  First-Aid Section – Image Input for Diagnosis
+•	Allow users to upload images for first-aid/emergency analysis.
+•	System must process image + (optional text/voice) for intelligent medical inference using Perplexity AI.
+•	Provide emergency assistant flow with nurse reactions & heartbeat spike animations.
