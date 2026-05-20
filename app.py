@@ -47,13 +47,12 @@ if database_url and database_url.startswith("postgres://"):
 # IMPORTANT FIX (NO SILENT FALLBACK IN PROD)
 # ======================
 if not database_url:
-    if is_render:
-        raise RuntimeError(
-            "❌ DATABASE_URL is not set on Render. Add PostgreSQL Internal URL in Environment Variables."
-        )
-    elif is_vercel:
+    if is_vercel:
         database_url = "sqlite:////tmp/nurseai.db"
         logging.warning("Using SQLite on Vercel (/tmp)")
+    elif is_render:
+        database_url = "sqlite:////tmp/nurseai.db"
+        logging.warning("DATABASE_URL not set; using SQLite on Render (/tmp). Attach Postgres for persistence.")
     else:
         database_url = "sqlite:///nurseai.db"
         logging.warning("Using local SQLite database")
@@ -87,12 +86,11 @@ with app.app_context():
         logging.info("Database tables created successfully")
         logging.info(f"DB URL: {database_url}")
     except Exception as e:
-        logging.exception("Database initialization failed: %s", e)
+        logging.exception(
+            "Database initialization failed. Set DATABASE_URL (or POSTGRES_URL) to a reachable database. Error: %s",
+            e,
+        )
 
-
-# ======================
-# ROUTE (FIX YOUR 404 ISSUE)
-# ======================
-@app.route("/")
-def home():
-    return "🔥 AI Health App is running successfully on Render!"
+# Ensure routes are registered when running under WSGI servers (e.g., Render/Gunicorn).
+# Gunicorn loads `app:app`, so without importing `routes`, the route decorators never run.
+import routes  # noqa: F401
