@@ -21,7 +21,12 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 is_vercel = os.environ.get("VERCEL") == "1"
 
-database_url = os.environ.get("DATABASE_URL")
+database_url = (
+    os.environ.get("DATABASE_URL")
+    or os.environ.get("POSTGRES_URL")
+    or os.environ.get("POSTGRES_URL_NON_POOLING")
+    or os.environ.get("POSTGRES_PRISMA_URL")
+)
 # Local-friendly default: SQLite when DATABASE_URL isn't provided.
 # This makes the project runnable without provisioning Postgres.
 if not database_url:
@@ -49,5 +54,11 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 with app.app_context():
     import models
-    db.create_all()
-    logging.info("Database tables created")
+    try:
+        db.create_all()
+        logging.info("Database tables created")
+    except Exception as e:
+        logging.exception(
+            "Database initialization failed. Set DATABASE_URL (or POSTGRES_URL) to a reachable database. Error: %s",
+            e,
+        )
