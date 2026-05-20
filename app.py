@@ -20,7 +20,13 @@ app.secret_key = os.environ.get("SESSION_SECRET") or secrets.token_hex(32)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 is_vercel = os.environ.get("VERCEL") == "1"
-is_render = os.environ.get("RENDER") == "true" or bool(os.environ.get("RENDER_EXTERNAL_URL"))
+
+render_flag = (os.environ.get("RENDER") or "").strip().lower()
+is_render = (
+    render_flag in {"1", "true", "yes"}
+    or bool(os.environ.get("RENDER_EXTERNAL_URL"))
+    or bool(os.environ.get("RENDER_SERVICE_ID"))
+)
 
 database_url = (
     os.environ.get("DATABASE_URL")
@@ -28,6 +34,9 @@ database_url = (
     or os.environ.get("POSTGRES_URL_NON_POOLING")
     or os.environ.get("POSTGRES_PRISMA_URL")
 )
+# Some providers still use the deprecated `postgres://` scheme; SQLAlchemy expects `postgresql://`.
+if database_url and database_url.startswith("postgres://"):
+    database_url = database_url.replace("postgres://", "postgresql://", 1)
 # Local-friendly default: SQLite when DATABASE_URL isn't provided.
 # This makes the project runnable without provisioning Postgres.
 if not database_url:
